@@ -639,7 +639,7 @@ function StudioTemplate({ cv, scheme, fontStack, fontSize, compact }: TemplatePr
             {cv.projects.slice(0, 4).map((p, i) => (
               <div key={i} className="p-2 rounded" style={{ background: `${scheme.accent}10` }}>
                 <div style={{ color: scheme.text, fontWeight: 600, fontSize: fontSize * 0.9 }}>{p.name}</div>
-                <div style={{ color: scheme.muted, fontSize: fontSize * 0.75, marginTop: 1 }}>{p.technologies}</div>
+                <div style={{ color: scheme.muted, fontSize: fontSize * 0.75, marginTop: 1 }}>{Array.isArray(p.technologies) ? p.technologies.join(", ") : p.technologies}</div>
               </div>
             ))}
           </div>
@@ -746,15 +746,17 @@ function createFallbackCV(): CVData {
       },
     ],
     education: [
-      { id: "ed1", degree: "B.Sc. Computer Science", institution: "Stanford University", field: "Computer Science", location: "Stanford, CA", startDate: "2014", endDate: "2018" },
+      { id: "ed1", degree: "B.Sc. Computer Science", institution: "Stanford University", field: "Computer Science", location: "Stanford, CA", startDate: "2014", endDate: "2018", description: "Graduated with honors. GPA 3.9/4.0." },
     ],
     skills: ["JavaScript", "TypeScript", "React", "Node.js", "Python", "SQL", "Docker", "AWS", "Leadership", "Mentorship"],
     projects: [
-      { id: "p1", name: "OpenSource Dashboard", description: "An open-source analytics dashboard built with React and D3.", technologies: "React, D3, TypeScript", url: "" },
+      { id: "p1", name: "OpenSource Dashboard", description: "An open-source analytics dashboard built with React and D3.", technologies: ["React", "D3", "TypeScript"], url: "" },
     ],
     certifications: [{ id: "c1", name: "AWS Solutions Architect", issuer: "Amazon", date: "2023" }],
     languages: [{ id: "l1", name: "English", proficiency: "Native" }, { id: "l2", name: "Spanish", proficiency: "Fluent" }],
     achievements: [],
+    awards: [],
+    publications: [],
     volunteer: [],
     interests: ["Open Source", "Hiking", "Photography"],
     template: "aurora",

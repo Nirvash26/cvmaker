@@ -132,9 +132,9 @@ export async function generateDOCX(cv: CVData): Promise<Blob> {
           spacing: { after: 40 },
         }));
       }
-      if (p.technologies) {
+      if (p.technologies && Array.isArray(p.technologies) && p.technologies.length > 0) {
         children.push(new Paragraph({
-          children: [new TextRun({ text: `Tech: ${p.technologies}`, size: 18, color: "888888" })],
+          children: [new TextRun({ text: `Tech: ${p.technologies.join(", ")}`, size: 18, color: "888888" })],
           spacing: { after: 80 },
         }));
       }
@@ -150,6 +150,40 @@ export async function generateDOCX(cv: CVData): Promise<Blob> {
     for (const c of cv.certifications) {
       children.push(new Paragraph({
         children: [new TextRun({ text: `${c.name}`, bold: true, size: 20 }), new TextRun({ text: ` — ${c.issuer}${c.date ? `, ${c.date}` : ""}`, size: 18, color: "888888" })],
+        spacing: { after: 60 },
+      }));
+    }
+  }
+
+  // Awards
+  if (cv.awards && cv.awards.length > 0) {
+    children.push(new Paragraph({
+      children: [new TextRun({ text: "AWARDS", bold: true, size: 22, color: "116466" })],
+      spacing: { before: 240, after: 80 },
+    }));
+    for (const a of cv.awards) {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: a.title || "", bold: true, size: 20 }), new TextRun({ text: ` — ${a.issuer || ""}${a.date ? `, ${a.date}` : ""}`, size: 18, color: "888888" })],
+        spacing: { after: 60 },
+      }));
+      if (a.description) {
+        children.push(new Paragraph({
+          children: [new TextRun({ text: a.description, size: 18, color: "888888" })],
+          spacing: { after: 60 },
+        }));
+      }
+    }
+  }
+
+  // Publications
+  if (cv.publications && cv.publications.length > 0) {
+    children.push(new Paragraph({
+      children: [new TextRun({ text: "PUBLICATIONS", bold: true, size: 22, color: "116466" })],
+      spacing: { before: 240, after: 80 },
+    }));
+    for (const p of cv.publications) {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: p.title || "", bold: true, size: 20 }), new TextRun({ text: ` — ${p.publisher || ""}${p.date ? `, ${p.date}` : ""}`, size: 18, color: "888888" })],
         spacing: { after: 60 },
       }));
     }

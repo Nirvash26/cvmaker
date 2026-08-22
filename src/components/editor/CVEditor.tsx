@@ -6,7 +6,7 @@ import {
   ChevronLeft, Save, Undo2, Redo2, Download, Eye, Settings2,
   ZoomIn, ZoomOut, Maximize2, Check, Sparkles, AlertCircle,
   User, Briefcase, GraduationCap, Award, FolderGit2, BadgeCheck,
-  Languages as LangIcon, Plus, X,
+  Languages as LangIcon, Plus, X, RotateCcw, GripVertical,
 } from "lucide-react";
 import { useAppStore, useCurrentCV } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -85,21 +85,27 @@ export function CVEditor() {
       {/* Top toolbar */}
       <div className="sticky top-16 z-30 bg-[#2C3531]/80 backdrop-blur-xl border-b border-[#D1E8E2]/5">
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between h-14 gap-3">
+            {/* Left */}
+            <div className="flex items-center gap-3 flex-1">
               <button onClick={() => setView("dashboard")} className="inline-flex items-center gap-1 text-sm text-[#9DB5B0] hover:text-[#D1E8E2] transition-colors">
-                <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">Dashboard</span>
+                <ChevronLeft className="w-4 h-4" /> <span className="hidden sm:inline">My CVs</span>
               </button>
-              <div className="hidden md:block text-[#D1E8E2] font-medium text-sm">{cv.name}</div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* Center: editable CV name */}
+            <div className="flex-1 flex justify-center">
+              <CVNameEditor cv={cv} />
+            </div>
+
+            {/* Right */}
+            <div className="flex items-center gap-2 flex-1 justify-end">
               {/* Saving status */}
-              <span className="text-xs text-[#9DB5B0] flex items-center gap-1.5">
+              <span className="text-xs text-[#9DB5B0] hidden md:flex items-center gap-1.5">
                 {savingStatus === "saving" ? (
                   <><span className="w-1.5 h-1.5 rounded-full bg-[#FFCB9A] animate-pulse" /> Saving...</>
                 ) : (
-                  <><Check className="w-3.5 h-3.5 text-[#FFCB9A]" /> All changes saved</>
+                  <><Check className="w-3.5 h-3.5 text-[#FFCB9A]" /> Saved</>
                 )}
               </span>
 
@@ -111,12 +117,17 @@ export function CVEditor() {
                 <Redo2 className="w-4 h-4" />
               </button>
 
-              {/* Quality check */}
-              <Button variant="ghost" size="sm" onClick={() => setQualityOpen(true)} className="text-[#9DB5B0] hover:text-[#FFCB9A]">
-                <Award className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">CV Score</span>
+              {/* CV Score */}
+              <Button variant="ghost" size="sm" onClick={() => setQualityOpen(true)} className="text-[#9DB5B0] hover:text-[#FFCB9A] hidden md:inline-flex">
+                <Award className="w-4 h-4" /> CV Score
               </Button>
 
-              {/* Download */}
+              {/* Preview button */}
+              <Button variant="ghost" size="sm" onClick={() => window.print()} className="text-[#9DB5B0] hover:text-[#D1E8E2]">
+                <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Preview</span>
+              </Button>
+
+              {/* Download (primary) */}
               <Button size="sm" onClick={() => setDownloadOpen(true)} className="bg-[#FFCB9A] hover:bg-[#FFCB9A]/90 text-[#2C3531]">
                 <Download className="w-4 h-4 mr-1.5" /> Download
               </Button>
@@ -418,6 +429,16 @@ function CustomizePanel({ cv }: { cv: any }) {
   const setView = useAppStore((s) => s.setView);
   const design = cv.design;
 
+  const densityPresets = [
+    { id: "compact", label: "Compact", fontSize: 12, spacing: 10, margins: 20 },
+    { id: "balanced", label: "Balanced", fontSize: 14, spacing: 16, margins: 32 },
+    { id: "spacious", label: "Spacious", fontSize: 16, spacing: 24, margins: 48 },
+  ];
+
+  const currentDensity = densityPresets.find(
+    (p) => p.fontSize === design.fontSize && p.spacing === design.sectionSpacing
+  )?.id || "custom";
+
   return (
     <div className="p-5 rounded-xl glass-card">
       <div className="flex items-center justify-between mb-4">
@@ -433,15 +454,18 @@ function CustomizePanel({ cv }: { cv: any }) {
           </button>
           <button
             onClick={() => {
-              updateDesign(cv.id, {
-                fontFamily: "inter", fontSize: 14, sectionSpacing: 16, margins: 32,
-                colorScheme: "nirvash", showPhoto: false, showIcons: true, showDividers: true,
-              });
-              toast.success("Design reset");
+              if (confirm("Reset all design changes to defaults? Your CV content will be preserved.")) {
+                updateDesign(cv.id, {
+                  fontFamily: "inter", fontSize: 14, sectionSpacing: 16, margins: 32,
+                  colorScheme: "nirvash", showPhoto: false, showIcons: true, showDividers: true,
+                  sectionOrder: ["personal", "summary", "experience", "education", "skills", "projects", "certifications", "languages"],
+                });
+                toast.success("Design reset to defaults");
+              }
             }}
-            className="text-xs text-[#9DB5B0] hover:text-[#D1E8E2]"
+            className="text-xs text-[#9DB5B0] hover:text-[#D1E8E2] inline-flex items-center gap-1"
           >
-            Reset Design
+            <RotateCcw className="w-3 h-3" /> Reset Changes
           </button>
         </div>
       </div>
@@ -465,16 +489,32 @@ function CustomizePanel({ cv }: { cv: any }) {
           </div>
         </div>
 
-        {/* Layout */}
+        {/* Layout density */}
         <div>
-          <h4 className="text-xs text-[#9DB5B0] uppercase tracking-wider mb-2">Layout</h4>
+          <h4 className="text-xs text-[#9DB5B0] uppercase tracking-wider mb-2">Layout Density</h4>
+          <div className="grid grid-cols-3 gap-1.5 mb-3">
+            {densityPresets.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => updateDesign(cv.id, { fontSize: p.fontSize, sectionSpacing: p.spacing, margins: p.margins })}
+                className={cn(
+                  "py-1.5 px-1 rounded-md text-xs font-medium border transition-all",
+                  currentDensity === p.id
+                    ? "bg-[#116466] border-[#116466] text-[#D1E8E2]"
+                    : "bg-[#3D4944] border-[#D1E8E2]/10 text-[#9DB5B0] hover:text-[#D1E8E2]"
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
           <div className="space-y-2">
             <div>
-              <Label className="text-xs text-[#9DB5B0]">Spacing: {design.sectionSpacing}px</Label>
+              <Label className="text-xs text-[#9DB5B0]">Section spacing: {design.sectionSpacing}px</Label>
               <Slider value={[design.sectionSpacing]} min={8} max={32} step={2} onValueChange={(v) => updateDesign(cv.id, { sectionSpacing: v[0] })} className="mt-1" />
             </div>
             <div>
-              <Label className="text-xs text-[#9DB5B0]">Margins: {design.margins}px</Label>
+              <Label className="text-xs text-[#9DB5B0]">Page margins: {design.margins}px</Label>
               <Slider value={[design.margins]} min={16} max={64} step={4} onValueChange={(v) => updateDesign(cv.id, { margins: v[0] })} className="mt-1" />
             </div>
           </div>
@@ -515,12 +555,15 @@ function CustomizePanel({ cv }: { cv: any }) {
               <Switch checked={design.showIcons} onCheckedChange={(v) => updateDesign(cv.id, { showIcons: v })} />
             </div>
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-[#9DB5B0]">Dividers</Label>
+              <Label className="text-xs text-[#9DB5B0]">Section dividers</Label>
               <Switch checked={design.showDividers} onCheckedChange={(v) => updateDesign(cv.id, { showDividers: v })} />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Section Order (drag and drop) */}
+      <SectionOrderEditor cv={cv} />
 
       {/* Template name display */}
       <div className="mt-4 pt-4 border-t border-[#D1E8E2]/5 flex items-center justify-between">
@@ -528,5 +571,131 @@ function CustomizePanel({ cv }: { cv: any }) {
         <button onClick={() => setView("template-gallery")} className="text-xs text-[#FFCB9A] hover:underline">Switch template →</button>
       </div>
     </div>
+  );
+}
+
+// ============ Section Order Editor (drag and drop) ============
+
+const SECTION_LABELS: Record<string, string> = {
+  personal: "Personal",
+  summary: "Summary",
+  experience: "Experience",
+  education: "Education",
+  skills: "Skills",
+  projects: "Projects",
+  certifications: "Certifications",
+  languages: "Languages",
+  additional: "Additional",
+};
+
+function SectionOrderEditor({ cv }: { cv: any }) {
+  const updateDesign = useAppStore((s) => s.updateDesign);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  const order = cv.design.sectionOrder || ["personal", "summary", "experience", "education", "skills", "projects", "certifications", "languages"];
+
+  const move = (from: number, to: number) => {
+    if (from === to) return;
+    const arr = [...order];
+    const [moved] = arr.splice(from, 1);
+    arr.splice(to, 0, moved);
+    updateDesign(cv.id, { sectionOrder: arr });
+  };
+
+  return (
+    <div className="mt-5 pt-4 border-t border-[#D1E8E2]/5">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-xs text-[#9DB5B0] uppercase tracking-wider">Section Order</h4>
+        <span className="text-[10px] text-[#9DB5B0]">Drag to reorder</span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {order.map((secId: string, idx: number) => (
+          <div
+            key={secId}
+            draggable
+            onDragStart={() => setDraggedIdx(idx)}
+            onDragEnd={() => { setDraggedIdx(null); setDragOverIdx(null); }}
+            onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (draggedIdx !== null && draggedIdx !== idx) {
+                move(draggedIdx, idx);
+              }
+              setDraggedIdx(null);
+              setDragOverIdx(null);
+            }}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border cursor-move transition-all",
+              draggedIdx === idx
+                ? "opacity-40 bg-[#116466]/20 border-[#116466]"
+                : dragOverIdx === idx
+                  ? "bg-[#FFCB9A]/15 border-[#FFCB9A] text-[#FFCB9A]"
+                  : "bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]"
+            )}
+          >
+            <GripVertical className="w-3 h-3 text-[#9DB5B0]" />
+            <span className="text-[10px] text-[#9DB5B0]">{idx + 1}.</span>
+            {SECTION_LABELS[secId] || secId}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============ CV Name Editor (center of header) ============
+
+function CVNameEditor({ cv }: { cv: any }) {
+  const updateCV = useAppStore((s) => s.updateCV);
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(cv.name);
+
+  // Reset value when not editing (sync with external name changes)
+  if (!editing && value !== cv.name) {
+    setValue(cv.name);
+  }
+
+  return (
+    <div className="flex items-center">
+      {editing ? (
+        <input
+          autoFocus
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => {
+            updateCV(cv.id, { name: value || "Untitled CV" });
+            setEditing(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              updateCV(cv.id, { name: value || "Untitled CV" });
+              setEditing(false);
+            } else if (e.key === "Escape") {
+              setValue(cv.name);
+              setEditing(false);
+            }
+          }}
+          className="bg-[#3D4944] border border-[#FFCB9A]/40 text-[#D1E8E2] rounded-md px-3 py-1 text-sm font-medium text-center min-w-[160px] max-w-[280px]"
+        />
+      ) : (
+        <button
+          onClick={() => setEditing(true)}
+          className="group inline-flex items-center gap-1.5 px-3 py-1 rounded-md hover:bg-[#3D4944]/50 text-[#D1E8E2] font-medium text-sm transition-colors max-w-[280px] truncate"
+          title="Click to rename"
+        >
+          <span className="truncate">{cv.name || "Untitled CV"}</span>
+          <PencilIcon className="w-3 h-3 text-[#9DB5B0] opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function PencilIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+    </svg>
   );
 }

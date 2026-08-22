@@ -13,18 +13,19 @@ import { CVEditor } from "@/components/editor/CVEditor";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { Settings } from "@/components/settings/Settings";
 import { SuccessScreen } from "@/components/success/SuccessScreen";
+import { PreparingTransition } from "@/components/templates/PreparingTransition";
 
 export default function Home() {
   const view = useAppStore((s) => s.view);
 
-  // Hide navbar on editor and wizard screens (those have their own chrome)
-  const showNavbar = !["question-wizard", "form-builder", "editor"].includes(view);
+  // Hide navbar on editor, wizard, and preparing screens (those have their own chrome)
+  const showNavbar = !["question-wizard", "form-builder", "editor", "preparing"].includes(view);
   const showFooter = ["landing", "dashboard", "settings", "success"].includes(view);
 
   // Warn before unload if CV is being edited
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (["question-wizard", "form-builder", "editor"].includes(useAppStore.getState().view)) {
+      if (["question-wizard", "form-builder", "editor", "preparing"].includes(useAppStore.getState().view)) {
         e.preventDefault();
         e.returnValue = "";
       }
@@ -42,6 +43,7 @@ export default function Home() {
         {view === "question-wizard" && <QuestionWizard />}
         {view === "form-builder" && <FormBuilder />}
         {view === "template-gallery" && <TemplateGallery />}
+        {view === "preparing" && <PreparingTransition />}
         {view === "editor" && <CVEditor />}
         {view === "dashboard" && <Dashboard />}
         {view === "settings" && <Settings />}

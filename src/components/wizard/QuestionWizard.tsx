@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Save, ChevronRight, Plus, X, Sparkles, GraduationCap, Briefcase, User, Award, Languages as LangIcon, FolderGit2, CheckCircle2 } from "lucide-react";
+import {
+  ChevronLeft, ChevronRight, ChevronDown, Plus, X, Sparkles, GraduationCap,
+  Briefcase, User, Award, Languages as LangIcon, FolderGit2, CheckCircle2,
+  BadgeCheck, BookOpen, Heart, HandHeart, Eye,
+} from "lucide-react";
 import { useAppStore, useCurrentCV } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,17 +15,18 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
+import { AIImproveButton } from "@/components/ai/AIImproveButton";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
-  { id: 1, label: "Personal", icon: User },
+  { id: 1, label: "About You", icon: User },
   { id: 2, label: "Summary", icon: Sparkles },
   { id: 3, label: "Experience", icon: Briefcase },
   { id: 4, label: "Education", icon: GraduationCap },
   { id: 5, label: "Skills", icon: Award },
   { id: 6, label: "Projects", icon: FolderGit2 },
   { id: 7, label: "More", icon: LangIcon },
-  { id: 8, label: "Done", icon: CheckCircle2 },
+  { id: 8, label: "Ready", icon: CheckCircle2 },
 ];
 
 const POPULAR_SKILLS = [
@@ -29,6 +34,14 @@ const POPULAR_SKILLS = [
   "Communication", "Leadership", "Problem Solving", "Teamwork",
   "Project Management", "SQL", "Git", "CSS", "HTML", "Figma",
   "Marketing", "Sales", "Data Analysis", "Public Speaking",
+];
+
+const PROFILE_TYPES = [
+  { id: "student", label: "Student", example: "I am a motivated student currently pursuing a degree in [Field], eager to apply my academic knowledge to real-world challenges and gain hands-on experience." },
+  { id: "fresher", label: "Fresher", example: "I am a recent graduate in [Field] with foundational knowledge and a strong passion for learning. Seeking an entry-level role to grow and contribute." },
+  { id: "experienced", label: "Experienced Professional", example: "I am an experienced [role] with [X]+ years of proven expertise in [key area], delivering measurable impact through [strength]. Skilled in leading initiatives and collaborating across teams." },
+  { id: "career-changer", label: "Career Changer", example: "I am a [new role] transitioning from a background in [previous field]. Bringing transferable skills in [skill 1, skill 2] and a fresh perspective to [industry]." },
+  { id: "freelancer", label: "Freelancer", example: "I am a freelance [role] with [X]+ years of independent experience helping clients achieve [outcome]. Specialized in [skill 1, skill 2] and committed to delivering high-quality work." },
 ];
 
 export function QuestionWizard() {
@@ -63,7 +76,7 @@ export function QuestionWizard() {
               onClick={() => setView("dashboard")}
               className="inline-flex items-center gap-1.5 text-sm text-[#9DB5B0] hover:text-[#D1E8E2] transition-colors"
             >
-              <Save className="w-4 h-4" /> Save &amp; Exit
+              <ChevronLeft className="w-4 h-4 rotate-180" /> Save &amp; Exit
             </button>
           </div>
           {/* Progress bar */}
@@ -175,81 +188,116 @@ function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {
 function StepPersonal({ cv }: { cv: any }) {
   const updatePersonal = useAppStore((s) => s.updatePersonal);
   const p = cv.personal;
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateEmail = (v: string) => {
+    if (!v) return "";
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Please enter a valid email address.";
+  };
 
   return (
     <div>
       <StepHeader
-        title="Let's start with your name."
-        subtitle="Basic information that appears at the top of your CV."
+        title="Let's start with you."
+        subtitle="This information will appear at the top of your CV."
       />
-      <div className="space-y-6 max-w-2xl">
+      <div className="space-y-5 max-w-2xl">
+        {/* Required fields */}
         <div>
-          <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Full Name</Label>
+          <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Full Name *</Label>
           <Input
             value={p.fullName}
             onChange={(e) => updatePersonal(cv.id, { fullName: e.target.value })}
-            placeholder="Alex Johnson"
-            className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-12 text-lg"
+            placeholder="e.g. John Smith"
+            className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
           />
         </div>
 
         <div>
-          <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">
-            What should appear below your name?
-          </Label>
+          <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Professional Title *</Label>
           <Input
             value={p.title}
             onChange={(e) => updatePersonal(cv.id, { title: e.target.value })}
-            placeholder="Software Engineer · Graphic Designer · Marketing Specialist"
+            placeholder="e.g. Frontend Developer"
             className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
           />
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Email</Label>
+            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Email *</Label>
             <Input
               type="email"
               value={p.email}
-              onChange={(e) => updatePersonal(cv.id, { email: e.target.value })}
-              placeholder="alex@example.com"
-              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]"
+              onChange={(e) => {
+                updatePersonal(cv.id, { email: e.target.value });
+                setErrors({ ...errors, email: validateEmail(e.target.value) });
+              }}
+              onBlur={(e) => setErrors({ ...errors, email: validateEmail(e.target.value) })}
+              placeholder="you@example.com"
+              className={cn(
+                "bg-[#3D4944] text-[#D1E8E2]",
+                errors.email ? "border-red-400/60" : "border-[#D1E8E2]/10"
+              )}
             />
+            {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
           </div>
           <div>
-            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Phone</Label>
+            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Phone Number</Label>
             <Input
               value={p.phone}
               onChange={(e) => updatePersonal(cv.id, { phone: e.target.value })}
               placeholder="+1 555 000 0000"
-              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]"
-            />
-          </div>
-          <div>
-            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Location</Label>
-            <Input
-              value={p.location}
-              onChange={(e) => updatePersonal(cv.id, { location: e.target.value })}
-              placeholder="San Francisco, CA"
-              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]"
-            />
-          </div>
-          <div>
-            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Website (optional)</Label>
-            <Input
-              value={p.website}
-              onChange={(e) => updatePersonal(cv.id, { website: e.target.value })}
-              placeholder="alex.dev"
-              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]"
+              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
             />
           </div>
           <div className="sm:col-span-2">
-            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">LinkedIn (optional)</Label>
+            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Location *</Label>
+            <Input
+              value={p.location}
+              onChange={(e) => updatePersonal(cv.id, { location: e.target.value })}
+              placeholder="City, Country"
+              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
+            />
+          </div>
+        </div>
+
+        {/* Optional section divider */}
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-dashed border-[#D1E8E2]/15" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-[#2C3531] px-3 text-xs text-[#9DB5B0] uppercase tracking-wider">Optional</span>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">LinkedIn</Label>
             <Input
               value={p.linkedin}
               onChange={(e) => updatePersonal(cv.id, { linkedin: e.target.value })}
-              placeholder="linkedin.com/in/alex"
-              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]"
+              placeholder="linkedin.com/in/username"
+              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
+            />
+          </div>
+          <div>
+            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">Portfolio Website</Label>
+            <Input
+              value={p.website}
+              onChange={(e) => updatePersonal(cv.id, { website: e.target.value })}
+              placeholder="yoursite.com"
+              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-2 block">GitHub</Label>
+            <Input
+              value={p.github}
+              onChange={(e) => updatePersonal(cv.id, { github: e.target.value })}
+              placeholder="github.com/username"
+              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-11"
             />
           </div>
         </div>
@@ -261,12 +309,21 @@ function StepPersonal({ cv }: { cv: any }) {
 function StepSummary({ cv }: { cv: any }) {
   const updateCV = useAppStore((s) => s.updateCV);
   const [value, setValue] = useState(cv.summary);
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+
+  const handleChipClick = (profileId: string, example: string) => {
+    setSelectedProfile(profileId);
+    if (!value.trim()) {
+      setValue(example);
+      updateCV(cv.id, { summary: example });
+    }
+  };
 
   return (
     <div>
       <StepHeader
         title="Tell us a little about yourself."
-        subtitle="Don't worry about making it perfect. You can improve it later."
+        subtitle="Don't worry about making it perfect. Write naturally, and you can improve it later."
       />
       <div className="max-w-2xl">
         <Textarea
@@ -275,10 +332,37 @@ function StepSummary({ cv }: { cv: any }) {
             setValue(e.target.value);
             updateCV(cv.id, { summary: e.target.value });
           }}
-          placeholder="I am a passionate software developer with experience building modern web applications..."
-          className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[180px] text-base leading-relaxed resize-none"
+          placeholder="I am a passionate and motivated professional with experience in..."
+          className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[160px] text-base leading-relaxed resize-none"
         />
-        <div className="mt-3 flex items-center justify-between">
+
+        {/* Suggestion chips */}
+        <div className="mt-4">
+          <p className="text-xs text-[#9DB5B0] uppercase tracking-wider mb-2">Not sure where to start? Pick a profile:</p>
+          <div className="flex flex-wrap gap-2">
+            {PROFILE_TYPES.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => handleChipClick(p.id, p.example)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-sm border transition-all",
+                  selectedProfile === p.id
+                    ? "bg-[#116466] border-[#116466] text-[#D1E8E2]"
+                    : "bg-[#3D4944]/50 border-[#D1E8E2]/15 text-[#9DB5B0] hover:border-[#D1E8E2]/30 hover:text-[#D1E8E2]"
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          {selectedProfile && (
+            <div className="mt-3 p-3 rounded-lg bg-[#3D4944]/50 border border-[#116466]/30 text-sm text-[#D1E8E2]/80">
+              <span className="text-[#FFCB9A] font-medium">Tip:</span> Edit the example above to make it yours. Replace placeholders like [Field] or [X] with your details.
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
           <p className="text-xs text-[#9DB5B0]">{value.length} characters · ~{Math.ceil(value.split(/\s+/).filter(Boolean).length)} words</p>
           <AISummaryButton
             context={{ jobTitle: cv.personal.title, skills: cv.skills, summary: value }}
@@ -302,26 +386,30 @@ function StepExperience({ cv }: { cv: any }) {
   );
 
   const options = [
-    { value: "yes", label: "Yes, I have work experience" },
-    { value: "student", label: "I'm a student" },
-    { value: "fresher", label: "I'm a fresher" },
-    { value: "freelance", label: "I have freelance experience" },
-    { value: "skip", label: "Skip for now" },
+    { value: "yes", label: "I have professional work experience", example: "e.g. Software Engineer at Nirvash" },
+    { value: "student", label: "I am a student", example: "e.g. Internship or part-time role" },
+    { value: "fresher", label: "I am a fresher", example: "e.g. Internship, training, or academic project" },
+    { value: "freelance", label: "I have freelance experience", example: "e.g. Freelance Web Developer" },
+    { value: "internship", label: "I have internship experience", example: "e.g. Marketing Intern" },
   ];
 
   return (
     <div>
       <StepHeader
-        title="Have you worked before?"
-        subtitle="Tell us about your work experience — even informal or freelance counts."
+        title="Tell us about your experience."
+        subtitle="Even informal or freelance work counts. You can add as many roles as you want."
       />
-      <div className="max-w-2xl space-y-3">
+
+      <div className="max-w-2xl space-y-3 mb-6">
+        <p className="text-sm font-medium text-[#D1E8E2]">What best describes you?</p>
         {options.map((opt) => (
           <button
             key={opt.value}
             onClick={() => {
               setExperienceType(opt.value);
-              if (opt.value === "yes" && cv.experience.length === 0) {
+              if (opt.value !== "yes" && cv.experience.length === 0) {
+                addExperience(cv.id);
+              } else if (opt.value === "yes" && cv.experience.length === 0) {
                 addExperience(cv.id);
               }
             }}
@@ -332,19 +420,16 @@ function StepExperience({ cv }: { cv: any }) {
                 : "bg-[#3D4944]/50 border-[#D1E8E2]/10 text-[#9DB5B0] hover:border-[#D1E8E2]/30"
             )}
           >
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "w-4 h-4 rounded-full border-2",
-                experienceType === opt.value ? "border-[#FFCB9A] bg-[#FFCB9A]" : "border-[#9DB5B0]"
-              )} />
+            <div className="flex items-center justify-between">
               <span className="text-sm font-medium">{opt.label}</span>
+              <span className="text-xs text-[#9DB5B0]">{opt.example}</span>
             </div>
           </button>
         ))}
       </div>
 
-      {experienceType === "yes" && (
-        <div className="mt-8 space-y-5">
+      {experienceType && (
+        <div className="space-y-5 max-w-2xl">
           {cv.experience.map((exp: any, i: number) => (
             <ExperienceCard
               key={exp.id}
@@ -358,8 +443,11 @@ function StepExperience({ cv }: { cv: any }) {
             onClick={() => addExperience(cv.id)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-[#D1E8E2]/20 text-[#9DB5B0] hover:text-[#D1E8E2] hover:border-[#116466] transition-all"
           >
-            <Plus className="w-4 h-4" /> Add Another Position
+            <Plus className="w-4 h-4" /> Add Another Experience
           </button>
+          <p className="text-xs text-[#9DB5B0]">
+            Tip: Students and freshers can skip this section if it doesn&apos;t apply.
+          </p>
         </div>
       )}
     </div>
@@ -370,17 +458,17 @@ function ExperienceCard({ index, experience, onChange, onRemove }: any) {
   return (
     <div className="p-5 rounded-xl glass-card space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#FFCB9A]">Position {index}</h3>
+        <h3 className="text-sm font-semibold text-[#FFCB9A]">Experience {index}</h3>
         <button onClick={onRemove} className="text-[#9DB5B0] hover:text-[#FFCB9A]">
           <X className="w-4 h-4" />
         </button>
       </div>
       <div className="grid sm:grid-cols-2 gap-3">
         <Input placeholder="Job Title" value={experience.jobTitle} onChange={(e) => onChange({ jobTitle: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
-        <Input placeholder="Company" value={experience.company} onChange={(e) => onChange({ company: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
+        <Input placeholder="Company / Organization" value={experience.company} onChange={(e) => onChange({ company: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
         <Input placeholder="Location" value={experience.location} onChange={(e) => onChange({ location: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
         <div className="grid grid-cols-2 gap-2">
-          <Input placeholder="Start (e.g. Jan 2023)" value={experience.startDate} onChange={(e) => onChange({ startDate: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
+          <Input placeholder="Start (Jan 2023)" value={experience.startDate} onChange={(e) => onChange({ startDate: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
           <Input placeholder="End" value={experience.endDate} onChange={(e) => onChange({ endDate: e.target.value })} disabled={experience.current} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] disabled:opacity-50" />
         </div>
       </div>
@@ -388,8 +476,22 @@ function ExperienceCard({ index, experience, onChange, onRemove }: any) {
         <Switch checked={experience.current} onCheckedChange={(v) => onChange({ current: v, endDate: v ? "" : experience.endDate })} />
         <Label className="text-sm text-[#9DB5B0]">I currently work here</Label>
       </div>
-      <Textarea placeholder="Responsibilities — what did you do day to day?" value={experience.responsibilities} onChange={(e) => onChange({ responsibilities: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[80px]" />
-      <Textarea placeholder="Achievements — what were you proud of?" value={experience.achievements} onChange={(e) => onChange({ achievements: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[80px]" />
+      <div>
+        <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">What did you do?</Label>
+        <Textarea placeholder="Describe your day-to-day responsibilities. e.g. Built and maintained the company website using React and TypeScript." value={experience.responsibilities} onChange={(e) => onChange({ responsibilities: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[80px]" />
+        <div className="mt-2 flex justify-end">
+          <AIImproveButton
+            jobTitle={experience.jobTitle}
+            description={experience.responsibilities}
+            type="responsibilities"
+            onApply={(text) => onChange({ responsibilities: text })}
+          />
+        </div>
+      </div>
+      <div>
+        <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">Achievements (Optional)</Label>
+        <Textarea placeholder="What did you accomplish? e.g. Improved page load time by 30%." value={experience.achievements} onChange={(e) => onChange({ achievements: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[60px]" />
+      </div>
     </div>
   );
 }
@@ -402,7 +504,7 @@ function StepEducation({ cv }: { cv: any }) {
   return (
     <div>
       <StepHeader
-        title="Tell us about your education."
+        title="Where did you study?"
         subtitle="Add your degrees, certifications, or relevant training."
       />
       <div className="space-y-5 max-w-2xl">
@@ -426,6 +528,15 @@ function StepEducation({ cv }: { cv: any }) {
               <Input placeholder="Location" value={edu.location} onChange={(e) => updateEducation(cv.id, edu.id, { location: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
               <Input placeholder="Start Date" value={edu.startDate} onChange={(e) => updateEducation(cv.id, edu.id, { startDate: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
               <Input placeholder="End Date" value={edu.endDate} onChange={(e) => updateEducation(cv.id, edu.id, { endDate: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
+            </div>
+            <div>
+              <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">Description or achievements (optional)</Label>
+              <Textarea
+                placeholder="e.g. Graduated with honors. President of the Computer Science Club."
+                value={edu.description}
+                onChange={(e) => updateEducation(cv.id, edu.id, { description: e.target.value })}
+                className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[60px]"
+              />
             </div>
           </div>
         ))}
@@ -452,13 +563,12 @@ function StepSkills({ cv }: { cv: any }) {
     }
   };
 
-  // Suggest based on job title keywords
   const titleLower = (cv.personal.title || "").toLowerCase();
   let suggestions: string[] = [];
   if (/engineer|developer|software|web|frontend|backend|full ?stack/.test(titleLower)) {
-    suggestions = ["JavaScript", "React", "TypeScript", "Node.js", "Git", "SQL", "REST APIs", "Docker"];
+    suggestions = ["JavaScript", "React", "TypeScript", "Node.js", "Git", "SQL", "REST APIs", "Docker", "Problem Solving"];
   } else if (/design|ui|ux|graphic/.test(titleLower)) {
-    suggestions = ["Figma", "Adobe Illustrator", "Photoshop", "Typography", "Wireframing", "Prototyping"];
+    suggestions = ["Figma", "Adobe Illustrator", "Photoshop", "Typography", "Wireframing", "Prototyping", "Design Systems", "User Research"];
   } else if (/market/.test(titleLower)) {
     suggestions = ["SEO", "Content Strategy", "Analytics", "Copywriting", "Social Media", "Email Marketing"];
   } else if (/data|analyst|scientist/.test(titleLower)) {
@@ -473,7 +583,7 @@ function StepSkills({ cv }: { cv: any }) {
     <div>
       <StepHeader
         title="What are you good at?"
-        subtitle="Add your skills as tags. Type and press Enter."
+        subtitle="Add technical skills, professional skills, or anything relevant to your career."
       />
       <div className="max-w-2xl">
         <div className="flex gap-2">
@@ -539,13 +649,16 @@ function StepProjects({ cv }: { cv: any }) {
   const addProject = useAppStore((s) => s.addProject);
   const updateProject = useAppStore((s) => s.updateProject);
   const removeProject = useAppStore((s) => s.removeProject);
+  const addProjectTech = useAppStore((s) => s.addProjectTech);
+  const removeProjectTech = useAppStore((s) => s.removeProjectTech);
   const [enabled, setEnabled] = useState(cv.projects.length > 0);
+  const [techInput, setTechInput] = useState<Record<string, string>>({});
 
   return (
     <div>
       <StepHeader
-        title="Do you have any projects you're proud of?"
-        subtitle="Optional — but a great way to show what you can do."
+        title="Have you worked on any projects?"
+        subtitle="Projects can help show your skills, especially if you're a student or fresher."
       />
       <div className="max-w-2xl">
         {!enabled ? (
@@ -555,13 +668,13 @@ function StepProjects({ cv }: { cv: any }) {
               className="w-full p-6 rounded-xl border border-dashed border-[#D1E8E2]/20 text-[#9DB5B0] hover:text-[#D1E8E2] hover:border-[#116466] transition-all"
             >
               <Plus className="w-6 h-6 mx-auto mb-2" />
-              <span className="text-sm">Add a project</span>
+              <span className="text-sm">Yes, add a project</span>
             </button>
             <button
               onClick={() => useAppStore.getState().nextWizardStep()}
               className="block w-full text-center text-sm text-[#9DB5B0] hover:text-[#D1E8E2] py-2"
             >
-              Skip this step →
+              Skip for now →
             </button>
           </div>
         ) : (
@@ -576,10 +689,49 @@ function StepProjects({ cv }: { cv: any }) {
                 </div>
                 <Input placeholder="Project Name" value={p.name} onChange={(e) => updateProject(cv.id, p.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
                 <Textarea placeholder="What did it do? What problem did it solve?" value={p.description} onChange={(e) => updateProject(cv.id, p.id, { description: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[80px]" />
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <Input placeholder="Technologies (e.g. React, Node)" value={p.technologies} onChange={(e) => updateProject(cv.id, p.id, { technologies: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
-                  <Input placeholder="Project URL (optional)" value={p.url} onChange={(e) => updateProject(cv.id, p.id, { url: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
+                <div>
+                  <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">Technologies Used</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={techInput[p.id] || ""}
+                      onChange={(e) => setTechInput({ ...techInput, [p.id]: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && (techInput[p.id] || "").trim()) {
+                          e.preventDefault();
+                          addProjectTech(cv.id, p.id, techInput[p.id]);
+                          setTechInput({ ...techInput, [p.id]: "" });
+                        }
+                      }}
+                      placeholder="Type a technology and press Enter..."
+                      className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] h-10"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if ((techInput[p.id] || "").trim()) {
+                          addProjectTech(cv.id, p.id, techInput[p.id]);
+                          setTechInput({ ...techInput, [p.id]: "" });
+                        }
+                      }}
+                      className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2]"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {p.technologies?.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {p.technologies.map((t: string) => (
+                        <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#116466]/30 border border-[#116466]/40 text-[#D1E8E2] text-xs">
+                          {t}
+                          <button onClick={() => removeProjectTech(cv.id, p.id, t)} className="text-[#9DB5B0] hover:text-[#FFCB9A]">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                <Input placeholder="Project Link (optional)" value={p.url} onChange={(e) => updateProject(cv.id, p.id, { url: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
               </div>
             ))}
             <button
@@ -602,88 +754,224 @@ function StepAdditional({ cv }: { cv: any }) {
   const addLanguage = useAppStore((s) => s.addLanguage);
   const updateLanguage = useAppStore((s) => s.updateLanguage);
   const removeLanguage = useAppStore((s) => s.removeLanguage);
+  const addAward = useAppStore((s) => s.addAward);
+  const updateAward = useAppStore((s) => s.updateAward);
+  const removeAward = useAppStore((s) => s.removeAward);
+  const addPublication = useAppStore((s) => s.addPublication);
+  const updatePublication = useAppStore((s) => s.updatePublication);
+  const removePublication = useAppStore((s) => s.removePublication);
   const addInterest = useAppStore((s) => s.addInterest);
   const removeInterest = useAppStore((s) => s.removeInterest);
+  const addVolunteer = useAppStore((s) => s.addVolunteer);
+  const removeVolunteer = useAppStore((s) => s.removeVolunteer);
   const [interestInput, setInterestInput] = useState("");
+  const [volunteerInput, setVolunteerInput] = useState("");
+
+  // Active optional sections
+  const [active, setActive] = useState<string[]>(() => {
+    const arr: string[] = [];
+    if (cv.certifications.length) arr.push("certifications");
+    if (cv.languages.length) arr.push("languages");
+    if (cv.awards.length) arr.push("awards");
+    if (cv.volunteer.length) arr.push("volunteer");
+    if (cv.publications.length) arr.push("publications");
+    if (cv.interests.length) arr.push("interests");
+    return arr;
+  });
+
+  const toggle = (id: string) => {
+    setActive((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const CARDS = [
+    { id: "certifications", icon: BadgeCheck, emoji: "🎓", label: "Certifications" },
+    { id: "languages", icon: LangIcon, emoji: "🌐", label: "Languages" },
+    { id: "awards", icon: Award, emoji: "🏆", label: "Awards & Achievements" },
+    { id: "volunteer", icon: HandHeart, emoji: "🤝", label: "Volunteer Experience" },
+    { id: "publications", icon: BookOpen, emoji: "📚", label: "Publications" },
+    { id: "interests", icon: Heart, emoji: "❤️", label: "Interests" },
+  ];
 
   return (
     <div>
       <StepHeader
-        title="Anything else to add?"
-        subtitle="All optional. Skip what doesn't apply to you."
+        title="Anything else you'd like to include?"
+        subtitle="All optional. Tap a card to add that section — nothing here is mandatory."
       />
-      <div className="space-y-6 max-w-2xl">
-        {/* Certifications */}
-        <Section title="Certifications">
-          {cv.certifications.map((c: any) => (
-            <div key={c.id} className="flex gap-2 mb-2">
-              <Input placeholder="Certification name" value={c.name} onChange={(e) => updateCertification(cv.id, c.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
-              <Input placeholder="Issuer" value={c.issuer} onChange={(e) => updateCertification(cv.id, c.id, { issuer: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
-              <button onClick={() => removeCertification(cv.id, c.id)} className="text-[#9DB5B0] hover:text-[#FFCB9A] p-2"><X className="w-4 h-4" /></button>
-            </div>
-          ))}
-          <AddButton onClick={() => addCertification(cv.id)} label="Add Certification" />
-        </Section>
 
-        {/* Languages */}
-        <Section title="Languages">
-          {cv.languages.map((l: any) => (
-            <div key={l.id} className="flex gap-2 mb-2">
-              <Input placeholder="Language" value={l.name} onChange={(e) => updateLanguage(cv.id, l.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
-              <select
-                value={l.proficiency}
-                onChange={(e) => updateLanguage(cv.id, l.id, { proficiency: e.target.value })}
-                className="bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] rounded-md px-3 text-sm"
+      <div className="max-w-2xl space-y-5">
+        {/* Card grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {CARDS.map((c) => {
+            const isActive = active.includes(c.id);
+            return (
+              <button
+                key={c.id}
+                onClick={() => toggle(c.id)}
+                className={cn(
+                  "p-4 rounded-xl border text-left transition-all",
+                  isActive
+                    ? "bg-[#116466]/20 border-[#116466] text-[#D1E8E2]"
+                    : "bg-[#3D4944]/50 border-[#D1E8E2]/10 text-[#9DB5B0] hover:border-[#D1E8E2]/30 hover:text-[#D1E8E2]"
+                )}
               >
-                <option>Beginner</option>
-                <option>Intermediate</option>
-                <option>Fluent</option>
-                <option>Native</option>
-              </select>
-              <button onClick={() => removeLanguage(cv.id, l.id)} className="text-[#9DB5B0] hover:text-[#FFCB9A] p-2"><X className="w-4 h-4" /></button>
-            </div>
-          ))}
-          <AddButton onClick={() => addLanguage(cv.id)} label="Add Language" />
-        </Section>
+                <div className="text-2xl mb-1.5">{c.emoji}</div>
+                <div className="text-sm font-medium">{c.label}</div>
+                <div className="text-xs mt-0.5 opacity-70">
+                  {isActive ? "Added ✓" : "Tap to add"}
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Interests */}
-        <Section title="Interests">
-          <div className="flex gap-2 mb-3">
-            <Input
-              value={interestInput}
-              onChange={(e) => setInterestInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && interestInput.trim()) {
-                  addInterest(cv.id, interestInput.trim());
-                  setInterestInput("");
-                }
-              }}
-              placeholder="Type an interest and press Enter"
-              className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1"
-            />
-          </div>
-          {cv.interests.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {cv.interests.map((int: string, i: number) => (
-                <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] text-sm">
-                  {int}
-                  <button onClick={() => removeInterest(cv.id, i)} className="text-[#9DB5B0] hover:text-[#FFCB9A]">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
+        {/* Active sections */}
+        <div className="space-y-5">
+          {active.includes("certifications") && (
+            <OptionalSection title="Certifications" onRemove={() => toggle("certifications")}>
+              {cv.certifications.map((c: any) => (
+                <div key={c.id} className="flex gap-2 mb-2">
+                  <Input placeholder="Certification name" value={c.name} onChange={(e) => updateCertification(cv.id, c.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                  <Input placeholder="Issuer" value={c.issuer} onChange={(e) => updateCertification(cv.id, c.id, { issuer: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                  <button onClick={() => removeCertification(cv.id, c.id)} className="text-[#9DB5B0] hover:text-[#FFCB9A] p-2"><X className="w-4 h-4" /></button>
+                </div>
               ))}
-            </div>
+              <AddButton onClick={() => addCertification(cv.id)} label="Add Certification" />
+            </OptionalSection>
           )}
-        </Section>
+
+          {active.includes("languages") && (
+            <OptionalSection title="Languages" onRemove={() => toggle("languages")}>
+              {cv.languages.map((l: any) => (
+                <div key={l.id} className="flex gap-2 mb-2">
+                  <Input placeholder="Language" value={l.name} onChange={(e) => updateLanguage(cv.id, l.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                  <select
+                    value={l.proficiency}
+                    onChange={(e) => updateLanguage(cv.id, l.id, { proficiency: e.target.value })}
+                    className="bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] rounded-md px-3 text-sm"
+                  >
+                    <option>Beginner</option>
+                    <option>Intermediate</option>
+                    <option>Fluent</option>
+                    <option>Native</option>
+                  </select>
+                  <button onClick={() => removeLanguage(cv.id, l.id)} className="text-[#9DB5B0] hover:text-[#FFCB9A] p-2"><X className="w-4 h-4" /></button>
+                </div>
+              ))}
+              <AddButton onClick={() => addLanguage(cv.id)} label="Add Language" />
+            </OptionalSection>
+          )}
+
+          {active.includes("awards") && (
+            <OptionalSection title="Awards & Achievements" onRemove={() => toggle("awards")}>
+              {cv.awards.map((a: any) => (
+                <div key={a.id} className="space-y-2 mb-3 p-3 rounded-lg bg-[#3D4944]/40">
+                  <div className="flex gap-2">
+                    <Input placeholder="Award title" value={a.title} onChange={(e) => updateAward(cv.id, a.id, { title: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                    <Input placeholder="Issuer" value={a.issuer} onChange={(e) => updateAward(cv.id, a.id, { issuer: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                    <Input placeholder="Date" value={a.date} onChange={(e) => updateAward(cv.id, a.id, { date: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] w-28" />
+                    <button onClick={() => removeAward(cv.id, a.id)} className="text-[#9DB5B0] hover:text-[#FFCB9A] p-2"><X className="w-4 h-4" /></button>
+                  </div>
+                  <Input placeholder="Description (optional)" value={a.description} onChange={(e) => updateAward(cv.id, a.id, { description: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
+                </div>
+              ))}
+              <AddButton onClick={() => addAward(cv.id)} label="Add Award" />
+            </OptionalSection>
+          )}
+
+          {active.includes("volunteer") && (
+            <OptionalSection title="Volunteer Experience" onRemove={() => toggle("volunteer")}>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={volunteerInput}
+                  onChange={(e) => setVolunteerInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && volunteerInput.trim()) {
+                      addVolunteer(cv.id, volunteerInput.trim());
+                      setVolunteerInput("");
+                    }
+                  }}
+                  placeholder="e.g. Volunteer Teacher at Local NGO (2023)"
+                  className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1"
+                />
+              </div>
+              {cv.volunteer.length > 0 && (
+                <ul className="space-y-1.5">
+                  {cv.volunteer.map((v: string, i: number) => (
+                    <li key={i} className="flex items-start gap-2 p-2 glass-card rounded-md text-sm text-[#D1E8E2]">
+                      <span className="flex-1">{v}</span>
+                      <button onClick={() => removeVolunteer(cv.id, i)} className="text-[#9DB5B0] hover:text-[#FFCB9A]"><X className="w-3.5 h-3.5" /></button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </OptionalSection>
+          )}
+
+          {active.includes("publications") && (
+            <OptionalSection title="Publications" onRemove={() => toggle("publications")}>
+              {cv.publications.map((p: any) => (
+                <div key={p.id} className="space-y-2 mb-3 p-3 rounded-lg bg-[#3D4944]/40">
+                  <div className="flex gap-2">
+                    <Input placeholder="Publication title" value={p.title} onChange={(e) => updatePublication(cv.id, p.id, { title: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                    <Input placeholder="Publisher" value={p.publisher} onChange={(e) => updatePublication(cv.id, p.id, { publisher: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                    <button onClick={() => removePublication(cv.id, p.id)} className="text-[#9DB5B0] hover:text-[#FFCB9A] p-2"><X className="w-4 h-4" /></button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input placeholder="Date" value={p.date} onChange={(e) => updatePublication(cv.id, p.id, { date: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] w-32" />
+                    <Input placeholder="URL (optional)" value={p.url} onChange={(e) => updatePublication(cv.id, p.id, { url: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1" />
+                  </div>
+                </div>
+              ))}
+              <AddButton onClick={() => addPublication(cv.id)} label="Add Publication" />
+            </OptionalSection>
+          )}
+
+          {active.includes("interests") && (
+            <OptionalSection title="Interests" onRemove={() => toggle("interests")}>
+              <div className="flex gap-2 mb-3">
+                <Input
+                  value={interestInput}
+                  onChange={(e) => setInterestInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && interestInput.trim()) {
+                      addInterest(cv.id, interestInput.trim());
+                      setInterestInput("");
+                    }
+                  }}
+                  placeholder="Add an interest and press Enter"
+                  className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] flex-1"
+                />
+              </div>
+              {cv.interests.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {cv.interests.map((int: string, i: number) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] text-sm">
+                      {int}
+                      <button onClick={() => removeInterest(cv.id, i)} className="text-[#9DB5B0] hover:text-[#FFCB9A]"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </OptionalSection>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function OptionalSection({ title, onRemove, children }: { title: string; onRemove?: () => void; children: React.ReactNode }) {
   return (
     <div className="p-5 rounded-xl glass-card">
-      <h3 className="text-sm font-semibold text-[#FFCB9A] mb-3">{title}</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-[#FFCB9A]">{title}</h3>
+        {onRemove && (
+          <button onClick={onRemove} className="text-xs text-[#9DB5B0] hover:text-[#FFCB9A]">Remove section</button>
+        )}
+      </div>
       {children}
     </div>
   );
@@ -702,6 +990,7 @@ function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
 
 function StepComplete({ cv }: { cv: any }) {
   const setView = useAppStore((s) => s.setView);
+  const setWizardStep = useAppStore((s) => s.setWizardStep);
 
   return (
     <div className="text-center max-w-2xl mx-auto py-10">
@@ -714,10 +1003,10 @@ function StepComplete({ cv }: { cv: any }) {
         <CheckCircle2 className="w-12 h-12 text-[#FFCB9A]" />
       </motion.div>
       <h1 className="text-3xl sm:text-4xl font-bold text-[#D1E8E2]">
-        Your CV information is ready! 🎉
+        Your CV Information Is Ready! 🎉
       </h1>
       <p className="mt-3 text-[#9DB5B0] text-lg">
-        Now let&apos;s make it look amazing.
+        Great work. Now let&apos;s choose a design that brings everything together.
       </p>
 
       <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto">
@@ -734,13 +1023,22 @@ function StepComplete({ cv }: { cv: any }) {
         ))}
       </div>
 
-      <button
-        onClick={() => setView("template-gallery")}
-        className="mt-10 inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2] font-medium transition-all teal-glow"
-      >
-        Choose a Template
-        <ChevronRight className="w-5 h-5" />
-      </button>
+      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button
+          onClick={() => setView("template-gallery")}
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2] font-medium transition-all teal-glow"
+        >
+          Choose a Template
+          <ChevronRight className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setWizardStep(1)}
+          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass-card hover:border-[#D1E8E2]/30 text-[#D1E8E2] font-medium transition-all"
+        >
+          <Eye className="w-4 h-4" />
+          Review My Information
+        </button>
+      </div>
     </div>
   );
 }

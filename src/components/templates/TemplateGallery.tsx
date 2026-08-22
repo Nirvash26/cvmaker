@@ -26,12 +26,12 @@ export function TemplateGallery() {
   const handleUse = (templateId: string) => {
     if (cv) {
       updateCV(cv.id, { template: templateId });
-      setView("editor");
+      setView("preparing");
     } else {
       // No CV — create one with this template (browse-first flow)
       const id = useAppStore.getState().createCV("form");
       useAppStore.getState().updateCV(id, { template: templateId });
-      setView("editor");
+      setView("preparing");
     }
   };
 

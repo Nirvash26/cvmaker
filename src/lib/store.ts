@@ -11,11 +11,15 @@ import {
   createEmptyProject,
   createEmptyCertification,
   createEmptyLanguage,
+  createEmptyAward,
+  createEmptyPublication,
   ExperienceEntry,
   EducationEntry,
   ProjectEntry,
   CertificationEntry,
   LanguageEntry,
+  AwardEntry,
+  PublicationEntry,
 } from "./types";
 
 interface AppState {
@@ -64,6 +68,8 @@ interface AppState {
   addProject: (cvId: string) => void;
   updateProject: (cvId: string, id: string, updates: Partial<ProjectEntry>) => void;
   removeProject: (cvId: string, id: string) => void;
+  addProjectTech: (cvId: string, projectId: string, tech: string) => void;
+  removeProjectTech: (cvId: string, projectId: string, tech: string) => void;
 
   // Certifications
   addCertification: (cvId: string) => void;
@@ -74,6 +80,23 @@ interface AppState {
   addLanguage: (cvId: string) => void;
   updateLanguage: (cvId: string, id: string, updates: Partial<LanguageEntry>) => void;
   removeLanguage: (cvId: string, id: string) => void;
+
+  // Awards
+  addAward: (cvId: string) => void;
+  updateAward: (cvId: string, id: string, updates: Partial<AwardEntry>) => void;
+  removeAward: (cvId: string, id: string) => void;
+
+  // Publications
+  addPublication: (cvId: string) => void;
+  updatePublication: (cvId: string, id: string, updates: Partial<PublicationEntry>) => void;
+  removePublication: (cvId: string, id: string) => void;
+
+  // Reordering entries (drag and drop)
+  moveExperience: (cvId: string, from: number, to: number) => void;
+  moveEducation: (cvId: string, from: number, to: number) => void;
+  moveProject: (cvId: string, from: number, to: number) => void;
+  duplicateExperience: (cvId: string, id: string) => void;
+  duplicateEducation: (cvId: string, id: string) => void;
 
   // Skills + simple arrays
   addSkill: (cvId: string, skill: string) => void;
@@ -253,6 +276,31 @@ export const useAppStore = create<AppState>()(
           })),
         })),
 
+      addProjectTech: (cvId, projectId, tech) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            projects: cv.projects.map((p) => {
+              if (p.id !== projectId) return p;
+              const trimmed = tech.trim();
+              if (!trimmed || p.technologies.includes(trimmed)) return p;
+              return { ...p, technologies: [...p.technologies, trimmed] };
+            }),
+          })),
+        })),
+
+      removeProjectTech: (cvId, projectId, tech) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            projects: cv.projects.map((p) =>
+              p.id === projectId
+                ? { ...p, technologies: p.technologies.filter((t) => t !== tech) }
+                : p
+            ),
+          })),
+        })),
+
       addCertification: (cvId) =>
         set((state) => ({
           cvs: updateCVInList(state.cvs, cvId, (cv) => ({
@@ -299,6 +347,119 @@ export const useAppStore = create<AppState>()(
             ...cv,
             languages: cv.languages.filter((l) => l.id !== id),
           })),
+        })),
+
+      addAward: (cvId) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            awards: [...cv.awards, createEmptyAward()],
+          })),
+        })),
+
+      updateAward: (cvId, id, updates) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            awards: cv.awards.map((a) => (a.id === id ? { ...a, ...updates } : a)),
+          })),
+        })),
+
+      removeAward: (cvId, id) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            awards: cv.awards.filter((a) => a.id !== id),
+          })),
+        })),
+
+      addPublication: (cvId) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            publications: [...cv.publications, createEmptyPublication()],
+          })),
+        })),
+
+      updatePublication: (cvId, id, updates) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            publications: cv.publications.map((p) => (p.id === id ? { ...p, ...updates } : p)),
+          })),
+        })),
+
+      removePublication: (cvId, id) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => ({
+            ...cv,
+            publications: cv.publications.filter((p) => p.id !== id),
+          })),
+        })),
+
+      moveExperience: (cvId, from, to) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => {
+            const arr = [...cv.experience];
+            if (from < 0 || to < 0 || from >= arr.length || to >= arr.length) return cv;
+            const [moved] = arr.splice(from, 1);
+            arr.splice(to, 0, moved);
+            return { ...cv, experience: arr };
+          }),
+        })),
+
+      moveEducation: (cvId, from, to) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => {
+            const arr = [...cv.education];
+            if (from < 0 || to < 0 || from >= arr.length || to >= arr.length) return cv;
+            const [moved] = arr.splice(from, 1);
+            arr.splice(to, 0, moved);
+            return { ...cv, education: arr };
+          }),
+        })),
+
+      moveProject: (cvId, from, to) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => {
+            const arr = [...cv.projects];
+            if (from < 0 || to < 0 || from >= arr.length || to >= arr.length) return cv;
+            const [moved] = arr.splice(from, 1);
+            arr.splice(to, 0, moved);
+            return { ...cv, projects: arr };
+          }),
+        })),
+
+      duplicateExperience: (cvId, id) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => {
+            const orig = cv.experience.find((e) => e.id === id);
+            if (!orig) return cv;
+            const copy: ExperienceEntry = {
+              ...orig,
+              id: `exp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            };
+            const idx = cv.experience.findIndex((e) => e.id === id);
+            const arr = [...cv.experience];
+            arr.splice(idx + 1, 0, copy);
+            return { ...cv, experience: arr };
+          }),
+        })),
+
+      duplicateEducation: (cvId, id) =>
+        set((state) => ({
+          cvs: updateCVInList(state.cvs, cvId, (cv) => {
+            const orig = cv.education.find((e) => e.id === id);
+            if (!orig) return cv;
+            const copy: EducationEntry = {
+              ...orig,
+              id: `edu_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            };
+            const idx = cv.education.findIndex((e) => e.id === id);
+            const arr = [...cv.education];
+            arr.splice(idx + 1, 0, copy);
+            return { ...cv, education: arr };
+          }),
         })),
 
       addSkill: (cvId, skill) =>
@@ -398,6 +559,27 @@ export const useAppStore = create<AppState>()(
         cvs: state.cvs,
         currentCVId: state.currentCVId,
       }),
+      migrate: (persisted: any, _version) => {
+        // Ensure new fields exist on loaded CVs
+        if (persisted?.cvs) {
+          persisted.cvs = persisted.cvs.map((cv: any) => ({
+            ...cv,
+            personal: {
+              github: "",
+              ...cv.personal,
+            },
+            awards: cv.awards || [],
+            publications: cv.publications || [],
+            education: (cv.education || []).map((e: any) => ({ ...e, description: e.description || "" })),
+            projects: (cv.projects || []).map((p: any) => ({
+              ...p,
+              technologies: Array.isArray(p.technologies) ? p.technologies : (p.technologies ? String(p.technologies).split(",").map((s: string) => s.trim()).filter(Boolean) : []),
+            })),
+          }));
+        }
+        return persisted;
+      },
+      version: 2,
     }
   )
 );

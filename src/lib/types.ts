@@ -6,6 +6,7 @@ export type View =
   | "question-wizard"
   | "form-builder"
   | "template-gallery"
+  | "preparing"
   | "editor"
   | "dashboard"
   | "settings"
@@ -19,6 +20,7 @@ export interface PersonalInfo {
   location: string;
   website: string;
   linkedin: string;
+  github: string;
   photo: string; // data URL
 }
 
@@ -42,13 +44,14 @@ export interface EducationEntry {
   location: string;
   startDate: string;
   endDate: string;
+  description: string;
 }
 
 export interface ProjectEntry {
   id: string;
   name: string;
   description: string;
-  technologies: string;
+  technologies: string[];
   url: string;
 }
 
@@ -63,6 +66,22 @@ export interface LanguageEntry {
   id: string;
   name: string;
   proficiency: string;
+}
+
+export interface AwardEntry {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  description: string;
+}
+
+export interface PublicationEntry {
+  id: string;
+  title: string;
+  publisher: string;
+  date: string;
+  url: string;
 }
 
 export interface DesignConfig {
@@ -89,6 +108,8 @@ export interface CVData {
   certifications: CertificationEntry[];
   languages: LanguageEntry[];
   achievements: string[];
+  awards: AwardEntry[];
+  publications: PublicationEntry[];
   volunteer: string[];
   interests: string[];
   template: string;
@@ -187,6 +208,7 @@ export function createEmptyCV(): CVData {
       location: "",
       website: "",
       linkedin: "",
+      github: "",
       photo: "",
     },
     summary: "",
@@ -197,6 +219,8 @@ export function createEmptyCV(): CVData {
     certifications: [],
     languages: [],
     achievements: [],
+    awards: [],
+    publications: [],
     volunteer: [],
     interests: [],
     template: "aurora",
@@ -248,6 +272,7 @@ export function createEmptyEducation(): EducationEntry {
     location: "",
     startDate: "",
     endDate: "",
+    description: "",
   };
 }
 
@@ -256,7 +281,7 @@ export function createEmptyProject(): ProjectEntry {
     id: `prj_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     name: "",
     description: "",
-    technologies: "",
+    technologies: [],
     url: "",
   };
 }
@@ -275,5 +300,25 @@ export function createEmptyLanguage(): LanguageEntry {
     id: `lang_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     name: "",
     proficiency: "Fluent",
+  };
+}
+
+export function createEmptyAward(): AwardEntry {
+  return {
+    id: `award_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    title: "",
+    issuer: "",
+    date: "",
+    description: "",
+  };
+}
+
+export function createEmptyPublication(): PublicationEntry {
+  return {
+    id: `pub_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    title: "",
+    publisher: "",
+    date: "",
+    url: "",
   };
 }
