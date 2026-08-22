@@ -21,6 +21,9 @@ import { TemplatePreview } from "./TemplatePreview";
 import { QualityCheck } from "@/components/quality/QualityCheck";
 import { DownloadModal } from "@/components/common/DownloadModal";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
+import { AIImproveButton } from "@/components/ai/AIImproveButton";
+import { AIProjectImprover } from "@/components/ai/AIProjectImprover";
+import { AISkillsSuggestions } from "@/components/ai/AISkillsSuggestions";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -271,6 +274,16 @@ function EditorSections({ cv, activeSection, setActiveSection }: { cv: any; acti
                     <Input placeholder="End" value={e.endDate} onChange={(ev) => updateExperience(cv.id, e.id, { endDate: ev.target.value })} disabled={e.current} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] disabled:opacity-50" />
                   </div>
                   <Textarea placeholder="Responsibilities" value={e.responsibilities} onChange={(ev) => updateExperience(cv.id, e.id, { responsibilities: ev.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[60px] text-xs" />
+                  {e.responsibilities && (
+                    <div className="flex justify-end -mt-1">
+                      <AIImproveButton
+                        jobTitle={e.jobTitle}
+                        description={e.responsibilities}
+                        type="responsibilities"
+                        onApply={(text) => updateExperience(cv.id, e.id, { responsibilities: text })}
+                      />
+                    </div>
+                  )}
                   <Textarea placeholder="Achievements" value={e.achievements} onChange={(ev) => updateExperience(cv.id, e.id, { achievements: ev.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[60px] text-xs" />
                 </div>
               ))}
@@ -317,6 +330,15 @@ function EditorSections({ cv, activeSection, setActiveSection }: { cv: any; acti
                   </span>
                 ))}
               </div>
+              <div className="pt-3 border-t border-[#D1E8E2]/5">
+                <AISkillsSuggestions
+                  jobTitle={cv.personal.title}
+                  experience={cv.experience[0]?.jobTitle}
+                  education={cv.education[0]?.field}
+                  existingSkills={cv.skills}
+                  onAddSkill={(skill) => addSkill(cv.id, skill)}
+                />
+              </div>
             </div>
           )}
 
@@ -330,7 +352,17 @@ function EditorSections({ cv, activeSection, setActiveSection }: { cv: any; acti
                   </div>
                   <Input placeholder="Name" value={p.name} onChange={(e) => updateProject(cv.id, p.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
                   <Textarea placeholder="Description" value={p.description} onChange={(e) => updateProject(cv.id, p.id, { description: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[60px] text-xs" />
-                  <Input placeholder="Tech" value={p.technologies} onChange={(e) => updateProject(cv.id, p.id, { technologies: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
+                  {p.description && (
+                    <div className="flex justify-end -mt-1">
+                      <AIProjectImprover
+                        projectName={p.name}
+                        description={p.description}
+                        technologies={Array.isArray(p.technologies) ? p.technologies : []}
+                        onApply={(text) => updateProject(cv.id, p.id, { description: text })}
+                      />
+                    </div>
+                  )}
+                  <Input placeholder="Tech (comma separated)" value={Array.isArray(p.technologies) ? p.technologies.join(", ") : p.technologies || ""} onChange={(e) => updateProject(cv.id, p.id, { technologies: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
                 </div>
               ))}
               <button onClick={() => addProject(cv.id)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-[#D1E8E2]/20 text-[#9DB5B0] hover:text-[#D1E8E2] hover:border-[#116466] text-xs transition-all">

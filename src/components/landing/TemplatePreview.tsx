@@ -64,9 +64,9 @@ export function TemplatePreview() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2C3531]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute bottom-0 inset-x-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="w-full py-1.5 rounded-md bg-[#116466] text-[#D1E8E2] text-xs font-medium">
+                  <div className="w-full py-1.5 rounded-md bg-[#116466] text-[#D1E8E2] text-xs font-medium text-center">
                     Use Template
-                  </button>
+                  </div>
                 </div>
               </div>
               <div className="mt-2.5 px-1">

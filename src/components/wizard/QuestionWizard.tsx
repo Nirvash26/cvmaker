@@ -16,6 +16,8 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { AISummaryButton } from "@/components/ai/AISummaryButton";
 import { AIImproveButton } from "@/components/ai/AIImproveButton";
+import { AISkillsSuggestions } from "@/components/ai/AISkillsSuggestions";
+import { AIProjectImprover } from "@/components/ai/AIProjectImprover";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -640,6 +642,17 @@ function StepSkills({ cv }: { cv: any }) {
             </div>
           </div>
         )}
+
+        {/* AI-powered skill suggestions */}
+        <div className="mt-8 pt-4 border-t border-[#D1E8E2]/5">
+          <AISkillsSuggestions
+            jobTitle={cv.personal.title}
+            experience={cv.experience[0]?.jobTitle}
+            education={cv.education[0]?.field}
+            existingSkills={cv.skills}
+            onAddSkill={(skill) => addSkill(cv.id, skill)}
+          />
+        </div>
       </div>
     </div>
   );
@@ -689,6 +702,16 @@ function StepProjects({ cv }: { cv: any }) {
                 </div>
                 <Input placeholder="Project Name" value={p.name} onChange={(e) => updateProject(cv.id, p.id, { name: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2]" />
                 <Textarea placeholder="What did it do? What problem did it solve?" value={p.description} onChange={(e) => updateProject(cv.id, p.id, { description: e.target.value })} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] min-h-[80px]" />
+                {p.description && (
+                  <div className="flex justify-end -mt-2">
+                    <AIProjectImprover
+                      projectName={p.name}
+                      description={p.description}
+                      technologies={p.technologies || []}
+                      onApply={(text) => updateProject(cv.id, p.id, { description: text })}
+                    />
+                  </div>
+                )}
                 <div>
                   <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">Technologies Used</Label>
                   <div className="flex gap-2">

@@ -6,12 +6,14 @@ import { CheckCircle2, Download, Edit3, Plus, PartyPopper } from "lucide-react";
 import { useAppStore, useCurrentCV } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { DownloadModal } from "@/components/common/DownloadModal";
+import { CreateAnotherModal } from "@/components/common/CreateAnotherModal";
 import { TemplatePreview } from "@/components/editor/TemplatePreview";
 
 export function SuccessScreen() {
   const cv = useCurrentCV();
   const setView = useAppStore((s) => s.setView);
   const [downloadOpen, setDownloadOpen] = useState(false);
+  const [createAnotherOpen, setCreateAnotherOpen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export function SuccessScreen() {
       {/* Confetti */}
       {showConfetti && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from({ length: 50 }).map((_, i) => {
+          {Array.from({ length: 60 }).map((_, i) => {
             const colors = ["#FFCB9A", "#116466", "#D9B08C", "#D1E8E2"];
             const color = colors[i % colors.length];
             const left = Math.random() * 100;
@@ -95,7 +97,7 @@ export function SuccessScreen() {
             Your CV Is Ready! 🎉
           </h1>
           <p className="mt-4 text-[#9DB5B0] text-lg max-w-md mx-auto">
-            You&apos;ve turned your experience into a professional CV. Now go get that opportunity.
+            You&apos;ve turned your experience into a professional CV. Now it&apos;s time to share it with the world.
           </p>
         </motion.div>
 
@@ -108,7 +110,6 @@ export function SuccessScreen() {
         >
           <div className="rounded-xl overflow-hidden glass-card p-2">
             <div style={{ aspectRatio: "1 / 1.414" }} className="rounded-md overflow-hidden">
-              {/* Lightweight preview using the same component */}
               <MiniPreview cv={cv} />
             </div>
           </div>
@@ -127,7 +128,7 @@ export function SuccessScreen() {
           <Button onClick={() => setView("editor")} className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2] w-full sm:w-auto">
             <Edit3 className="w-4 h-4 mr-1.5" /> Edit CV
           </Button>
-          <Button onClick={() => setView("method-select")} variant="outline" className="bg-transparent border border-[#D1E8E2]/20 text-[#D1E8E2] hover:bg-[#3D4944] w-full sm:w-auto">
+          <Button onClick={() => setCreateAnotherOpen(true)} variant="outline" className="bg-transparent border border-[#D1E8E2]/20 text-[#D1E8E2] hover:bg-[#3D4944] w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-1.5" /> Create Another CV
           </Button>
         </motion.div>
@@ -139,11 +140,12 @@ export function SuccessScreen() {
           className="mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFCB9A]/10 border border-[#FFCB9A]/20 text-[#FFCB9A] text-sm"
         >
           <PartyPopper className="w-4 h-4" />
-          From a blank page to a professional CV in minutes.
+          You bring the experience. Nirvash makes it professional.
         </motion.div>
       </div>
 
       <DownloadModal open={downloadOpen} onOpenChange={setDownloadOpen} cv={cv} />
+      <CreateAnotherModal open={createAnotherOpen} onOpenChange={setCreateAnotherOpen} />
     </div>
   );
 }

@@ -4,12 +4,15 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Plus, MoreVertical, Edit3, Download, Copy, Trash2, FileText,
-  Clock, Sparkles, ChevronLeft,
+  Clock, Sparkles, ChevronLeft, LayoutTemplate, CheckCircle2,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
+import { CVData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TemplatePreview } from "@/components/editor/TemplatePreview";
 import { DownloadModal } from "@/components/common/DownloadModal";
+import { DeleteConfirmationModal } from "@/components/common/DeleteConfirmationModal";
+import { RenameModal } from "@/components/common/RenameModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,12 +28,10 @@ export function Dashboard() {
   const deleteCV = useAppStore((s) => s.deleteCV);
   const duplicateCV = useAppStore((s) => s.duplicateCV);
   const renameCV = useAppStore((s) => s.renameCV);
-  const createCV = useAppStore((s) => s.createCV);
-  const updateCV = useAppStore((s) => s.updateCV);
 
   const [downloadFor, setDownloadFor] = useState<string | null>(null);
-  const [renaming, setRenaming] = useState<string | null>(null);
-  const [renameValue, setRenameValue] = useState("");
+  const [deleteFor, setDeleteFor] = useState<string | null>(null);
+  const [renameFor, setRenameFor] = useState<string | null>(null);
 
   const handleEdit = (id: string) => {
     setCurrentCV(id);
@@ -46,20 +47,31 @@ export function Dashboard() {
     toast.success("CV duplicated");
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Delete this CV permanently?")) {
-      deleteCV(id);
-      toast.success("CV deleted");
+  const handleDeleteConfirm = () => {
+    if (deleteFor) {
+      const cvName = cvs.find((c) => c.id === deleteFor)?.name;
+      deleteCV(deleteFor);
+      setDeleteFor(null);
+      toast.success(`"${cvName || "CV"}" deleted`);
     }
   };
 
-  const handleRename = (id: string, name: string) => {
-    renameCV(id, name);
-    setRenaming(null);
-    toast.success("CV renamed");
+  const handleRename = (name: string) => {
+    if (renameFor) {
+      renameCV(renameFor, name);
+      setRenameFor(null);
+      toast.success("CV renamed");
+    }
+  };
+
+  const handleChangeTemplate = (id: string) => {
+    setCurrentCV(id);
+    setView("template-gallery");
   };
 
   const cvForDownload = cvs.find((c) => c.id === downloadFor);
+  const cvForDelete = cvs.find((c) => c.id === deleteFor);
+  const cvForRename = cvs.find((c) => c.id === renameFor);
 
   return (
     <div className="min-h-screen pt-20">
@@ -82,7 +94,9 @@ export function Dashboard() {
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold text-[#D1E8E2]">My CVs</h1>
             <p className="mt-1.5 text-[#9DB5B0] text-sm">
-              {cvs.length === 0 ? "Create your first professional CV." : `${cvs.length} ${cvs.length === 1 ? "CV" : "CVs"} in your collection.`}
+              {cvs.length === 0
+                ? "Create, manage, and improve all your professional CVs in one place."
+                : `${cvs.length} ${cvs.length === 1 ? "CV" : "CVs"} · Create, manage, and improve all your professional CVs in one place.`}
             </p>
           </div>
           <Button onClick={handleCreateNew} className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2]">
@@ -94,82 +108,103 @@ export function Dashboard() {
           <EmptyState onCreate={handleCreateNew} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {cvs.map((cv, i) => (
-              <motion.div
-                key={cv.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.05 }}
-                className="group rounded-xl glass-card hover:border-[#116466] transition-all duration-300 overflow-hidden"
-              >
-                {/* Thumbnail */}
-                <div className="relative bg-[#1a1a1a] overflow-hidden cursor-pointer" onClick={() => handleEdit(cv.id)} style={{ aspectRatio: "1 / 1.3" }}>
-                  <TemplatePreview templateId={cv.template} cv={cv} compact />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2C3531]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                    <Button size="sm" className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2]">
-                      <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
-                    </Button>
-                  </div>
-                </div>
+            {cvs.map((cv, i) => {
+              const score = computeCVScore(cv);
+              return (
+                <motion.div
+                  key={cv.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.05 }}
+                  className="group rounded-xl glass-card hover:border-[#116466] transition-all duration-300 overflow-hidden"
+                >
+                  {/* Thumbnail */}
+                  <div className="relative bg-[#1a1a1a] overflow-hidden cursor-pointer" onClick={() => handleEdit(cv.id)} style={{ aspectRatio: "1 / 1.3" }}>
+                    <TemplatePreview templateId={cv.template} cv={cv} compact />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#2C3531]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                      <Button size="sm" className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2]">
+                        <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
+                      </Button>
+                    </div>
 
-                {/* Info */}
-                <div className="p-4">
-                  {renaming === cv.id ? (
-                    <input
-                      autoFocus
-                      value={renameValue}
-                      onChange={(e) => setRenameValue(e.target.value)}
-                      onBlur={() => handleRename(cv.id, renameValue)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleRename(cv.id, renameValue); }}
-                      className="w-full bg-[#3D4944] border border-[#D1E8E2]/20 text-[#D1E8E2] rounded-md px-2 py-1 text-sm"
-                    />
-                  ) : (
+                    {/* Score badge */}
+                    {score > 0 && (
+                      <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#2C3531]/90 backdrop-blur-sm text-[10px] font-semibold text-[#FFCB9A] border border-[#FFCB9A]/30">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        {score}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="p-4">
                     <h3 className="text-base font-semibold text-[#D1E8E2] truncate">{cv.name || "Untitled CV"}</h3>
-                  )}
-                  <div className="mt-1 flex items-center gap-2 text-xs text-[#9DB5B0]">
-                    <span className="px-1.5 py-0.5 rounded bg-[#3D4944]">{cv.template}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {formatRelative(cv.updatedAt)}
-                    </span>
-                  </div>
+                    <div className="mt-1 flex items-center gap-2 text-xs text-[#9DB5B0]">
+                      <span className="px-1.5 py-0.5 rounded bg-[#3D4944]">{cv.template}</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {formatRelative(cv.updatedAt)}
+                      </span>
+                    </div>
 
-                  {/* Actions */}
-                  <div className="mt-3 flex items-center gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => handleEdit(cv.id)} className="text-[#9DB5B0] hover:text-[#D1E8E2] flex-1">
-                      <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setDownloadFor(cv.id)} className="text-[#9DB5B0] hover:text-[#D1E8E2]">
-                      <Download className="w-3.5 h-3.5" />
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1.5 rounded-md text-[#9DB5B0] hover:text-[#D1E8E2] hover:bg-[#3D4944]">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-[#34403B] border-[#D1E8E2]/10">
-                        <DropdownMenuItem onClick={() => { setRenaming(cv.id); setRenameValue(cv.name); }} className="text-[#D1E8E2] hover:bg-[#3D4944] cursor-pointer">
-                          <Edit3 className="w-4 h-4 mr-2" /> Rename
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDuplicate(cv.id)} className="text-[#D1E8E2] hover:bg-[#3D4944] cursor-pointer">
-                          <Copy className="w-4 h-4 mr-2" /> Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDelete(cv.id)} className="text-red-400 hover:bg-[#3D4944] cursor-pointer">
-                          <Trash2 className="w-4 h-4 mr-2" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {/* Actions */}
+                    <div className="mt-3 flex items-center gap-2">
+                      <Button size="sm" variant="ghost" onClick={() => handleEdit(cv.id)} className="text-[#9DB5B0] hover:text-[#D1E8E2] flex-1">
+                        <Edit3 className="w-3.5 h-3.5 mr-1" /> Edit
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setDownloadFor(cv.id)} className="text-[#9DB5B0] hover:text-[#D1E8E2]">
+                        <Download className="w-3.5 h-3.5" />
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-1.5 rounded-md text-[#9DB5B0] hover:text-[#D1E8E2] hover:bg-[#3D4944]" aria-label="More options">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-[#34403B] border-[#D1E8E2]/10">
+                          <DropdownMenuItem onClick={() => setRenameFor(cv.id)} className="text-[#D1E8E2] hover:bg-[#3D4944] cursor-pointer">
+                            <Edit3 className="w-4 h-4 mr-2" /> Rename
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicate(cv.id)} className="text-[#D1E8E2] hover:bg-[#3D4944] cursor-pointer">
+                            <Copy className="w-4 h-4 mr-2" /> Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleChangeTemplate(cv.id)} className="text-[#D1E8E2] hover:bg-[#3D4944] cursor-pointer">
+                            <LayoutTemplate className="w-4 h-4 mr-2" /> Change Template
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setDeleteFor(cv.id)}
+                            className="text-red-400 hover:bg-[#3D4944] cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
 
+      {/* Modals */}
       {cvForDownload && (
         <DownloadModal open={true} onOpenChange={(o) => !o && setDownloadFor(null)} cv={cvForDownload} />
       )}
+
+      <DeleteConfirmationModal
+        open={!!deleteFor}
+        onOpenChange={(o) => !o && setDeleteFor(null)}
+        onConfirm={handleDeleteConfirm}
+        cvName={cvForDelete?.name}
+      />
+
+      <RenameModal
+        open={!!renameFor}
+        onOpenChange={(o) => !o && setRenameFor(null)}
+        onConfirm={handleRename}
+        currentName={cvForRename?.name || ""}
+      />
     </div>
   );
 }
@@ -211,10 +246,10 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       </div>
 
       <h2 className="text-2xl sm:text-3xl font-bold text-[#D1E8E2]">
-        Your CV journey starts here.
+        Your next opportunity starts here.
       </h2>
       <p className="mt-3 text-[#9DB5B0] max-w-md mx-auto">
-        Create your first professional CV in just a few minutes.
+        Create your first professional CV in just a few simple steps.
       </p>
       <Button
         onClick={onCreate}
@@ -238,4 +273,20 @@ function formatRelative(timestamp: number): string {
   if (hours < 24) return `${hours}h ago`;
   if (days < 7) return `${days}d ago`;
   return new Date(timestamp).toLocaleDateString();
+}
+
+// Lightweight CV score for dashboard display
+function computeCVScore(cv: CVData): number {
+  const checks = [
+    !!(cv.personal.fullName && cv.personal.email && cv.personal.phone),
+    cv.summary.length > 50,
+    cv.experience.length > 0,
+    cv.experience.some((e) => e.achievements && e.achievements.length > 0),
+    cv.education.length > 0,
+    cv.skills.length >= 5,
+    cv.skills.length >= 8,
+    cv.projects.length > 0 || cv.certifications.length > 0,
+  ];
+  const earned = checks.filter(Boolean).length;
+  return Math.min(100, Math.round((earned / checks.length) * 100));
 }

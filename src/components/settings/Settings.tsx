@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, User, Settings as SettingsIcon, KeyRound, Trash2, Camera, Globe, Palette } from "lucide-react";
+import { ChevronLeft, User, Settings as SettingsIcon, KeyRound, Trash2, Camera, Globe, Palette, Download, LogOut, Eye } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,11 @@ export function Settings() {
   });
   const [prefs, setPrefs] = useState({
     defaultTemplate: "aurora",
+    defaultExportFormat: "pdf",
     language: "en",
     theme: "dark",
+    reduceAnimations: false,
+    compactMode: false,
   });
 
   const handleSavePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +99,7 @@ export function Settings() {
                 className="bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] rounded-md px-3 py-2 text-sm w-full sm:w-64"
               >
                 <option value="aurora">Aurora</option>
-                <option value="minimal">Minimal</option>
+                <option value="minimal">Nirvash Minimal</option>
                 <option value="vertex">Vertex</option>
                 <option value="horizon">Horizon</option>
                 <option value="executive">Executive</option>
@@ -109,6 +112,23 @@ export function Settings() {
                 <option value="studio">Studio</option>
               </select>
             </div>
+
+            <div>
+              <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">
+                <Download className="w-3 h-3 inline mr-1" /> Default Export Format
+              </Label>
+              <select
+                value={prefs.defaultExportFormat}
+                onChange={(e) => setPrefs({ ...prefs, defaultExportFormat: e.target.value })}
+                className="bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] rounded-md px-3 py-2 text-sm w-full sm:w-64"
+              >
+                <option value="pdf">PDF (recommended)</option>
+                <option value="docx">DOCX (editable)</option>
+                <option value="print">Print</option>
+              </select>
+              <p className="text-xs text-[#9DB5B0] mt-1.5">Used as the default when downloading a CV.</p>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider mb-1.5 block">
@@ -142,15 +162,36 @@ export function Settings() {
                 </select>
               </div>
             </div>
+
+            {/* Interface preferences */}
+            <div className="pt-3 border-t border-[#D1E8E2]/5 space-y-2.5">
+              <Label className="text-[#9DB5B0] text-xs uppercase tracking-wider block">
+                <Eye className="w-3 h-3 inline mr-1" /> Interface
+              </Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-sm text-[#D1E8E2]">Reduce animations</Label>
+                <Switch checked={prefs.reduceAnimations} onCheckedChange={(v) => setPrefs({ ...prefs, reduceAnimations: v })} />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-sm text-[#D1E8E2]">Compact mode</Label>
+                <Switch checked={prefs.compactMode} onCheckedChange={(v) => setPrefs({ ...prefs, compactMode: v })} />
+              </div>
+              <p className="text-xs text-[#9DB5B0]">Changes apply on next page load.</p>
+            </div>
           </div>
         </SettingsCard>
 
         {/* Account */}
         <SettingsCard icon={KeyRound} title="Account">
           <div className="space-y-3">
-            <Button variant="outline" className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] hover:bg-[#3D4944]/80">
-              <KeyRound className="w-4 h-4 mr-2" /> Change Password
-            </Button>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Button variant="outline" className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] hover:bg-[#3D4944]/80">
+                <KeyRound className="w-4 h-4 mr-2" /> Change Password
+              </Button>
+              <Button variant="outline" onClick={() => toast.success("Signed out (demo)")} className="bg-[#3D4944] border-[#D1E8E2]/10 text-[#D1E8E2] hover:bg-[#3D4944]/80">
+                <LogOut className="w-4 h-4 mr-2" /> Sign Out
+              </Button>
+            </div>
             <div className="pt-3 border-t border-[#D1E8E2]/5">
               <p className="text-sm text-[#9DB5B0] mb-2">Danger zone — this will permanently delete all your CVs and data.</p>
               <Button onClick={handleDeleteAccount} variant="destructive" className="bg-red-500/15 text-red-400 hover:bg-red-500/25 border border-red-500/30">
