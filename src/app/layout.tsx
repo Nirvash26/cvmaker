@@ -1,0 +1,64 @@
+import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+
+const inter = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Nirvash CV Maker — Your CV. Made Effortlessly.",
+  description:
+    "Create a professional CV in minutes. Answer simple questions or fill out a form, pick a beautiful template, and download a polished resume. No experience required.",
+  keywords: [
+    "CV builder",
+    "resume maker",
+    "professional CV",
+    "Nirvash",
+    "ATS friendly resume",
+    "online CV creator",
+  ],
+  authors: [{ name: "Nirvash" }],
+  icons: {
+    icon: "/logo.svg",
+  },
+  openGraph: {
+    title: "Nirvash CV Maker",
+    description: "Your CV. Made Effortlessly.",
+    siteName: "Nirvash CV Maker",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nirvash CV Maker",
+    description: "Your CV. Made Effortlessly.",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
+      >
+        {children}
+        <Toaster />
+        <SonnerToaster />
+      </body>
+    </html>
+  );
+}
