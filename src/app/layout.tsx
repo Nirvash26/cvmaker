@@ -30,7 +30,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Nirvash" }],
   icons: {
-    icon: "/logo.svg",
+    icon: [
+      { url: "/nirvash-logo-nav.png", type: "image/png", sizes: "256x256" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/nirvash-logo-nav.png",
   },
   openGraph: {
     title: "Nirvash CV Maker",

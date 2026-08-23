@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/store";
@@ -64,10 +65,17 @@ export function Navbar() {
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <button onClick={() => setView("landing")} className="flex items-center gap-2 group">
+          <button onClick={() => setView("landing")} className="flex items-center gap-2.5 group">
             <div className="relative">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#116466] to-[#0d4d4f] flex items-center justify-center teal-glow">
-                <span className="text-[#FFCB9A] font-bold text-lg">N</span>
+              <div className="w-10 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-[#116466] to-[#0d4d4f] flex items-center justify-center teal-glow-soft ring-1 ring-[#FFCB9A]/20">
+                <Image
+                  src="/nirvash-logo-nav.png"
+                  alt="Nirvash CV Maker logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                  priority
+                />
               </div>
               <div className="absolute inset-0 rounded-lg bg-[#FFCB9A]/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>

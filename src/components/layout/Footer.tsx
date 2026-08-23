@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Github, Twitter, Linkedin, Mail } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 
@@ -12,9 +13,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#116466] to-[#0d4d4f] flex items-center justify-center">
-                <span className="text-[#FFCB9A] font-bold">N</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-lg overflow-hidden bg-gradient-to-br from-[#116466] to-[#0d4d4f] flex items-center justify-center ring-1 ring-[#FFCB9A]/20">
+                <Image
+                  src="/nirvash-logo-nav.png"
+                  alt="Nirvash CV Maker logo"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex flex-col leading-none">
                 <span className="text-[#D1E8E2] font-semibold tracking-wide">NIRVASH</span>
