@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Check, Eye, ChevronLeft, Star, GitCompare, Sparkles, X, ArrowRight,
-  LayoutGrid, Wand2, Code, Briefcase, Palette, GraduationCap, Megaphone,
-  DollarSign, HeartPulse, BookOpen, MoreHorizontal,
+  Check, Eye, ChevronLeft, Star, GitCompare, Sparkles, ArrowRight,
+  Wand2, Code, Briefcase, Palette, GraduationCap, Megaphone, DollarSign,
+  HeartPulse, BookOpen, MoreHorizontal, X,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { TEMPLATES, TEMPLATE_CATEGORIES, FEATURED_LABELS, ROLE_OPTIONS } from "@/lib/templates";
@@ -27,6 +27,12 @@ const ROLE_ICONS: Record<string, any> = {
   "Education": BookOpen,
   "Other": MoreHorizontal,
 };
+
+// Subtle pill nav (no longer 17 categories — just the key visual ones)
+const SUBTLE_CATEGORIES = [
+  "All", "Minimal", "Modern", "Professional", "Creative",
+  "Tech", "Student", "Executive", "ATS Friendly",
+];
 
 export function TemplateGallery() {
   const setView = useAppStore((s) => s.setView);
@@ -70,40 +76,23 @@ export function TemplateGallery() {
     setFilter("All");
   };
 
-  // Featured templates
-  const featured = useMemo(() => {
-    const featuredIds = ["apex", "executive", "first-step", "signal", "quantum"];
-    return featuredIds.map((id) => TEMPLATES.find((t) => t.id === id)).filter(Boolean);
-  }, []);
+  // Featured single template (Editor's Choice)
+  const featuredTemplate = useMemo(() => TEMPLATES.find((t) => t.id === "vertex") || TEMPLATES[0], []);
 
   // Filter templates
   const filtered = useMemo(() => {
     let list = TEMPLATES;
-    if (filter === "Recommended") {
-      list = TEMPLATES.filter((t) => t.featured || t.atsFriendly);
-    } else if (filter === "ATS Friendly") {
+    if (filter === "ATS Friendly") {
       list = TEMPLATES.filter((t) => t.atsFriendly);
-    } else if (filter === "One Page") {
-      list = TEMPLATES.filter((t) => t.onePage);
-    } else if (filter === "Two Column") {
-      list = TEMPLATES.filter((t) => ["vertex", "vivid", "sidebar-tpl", "split", "horizon", "studio", "prism"].includes(t.id));
-    } else if (filter === "With Photo") {
-      list = TEMPLATES.filter((t) => t.hasPhoto);
-    } else if (filter === "Without Photo") {
-      list = TEMPLATES.filter((t) => !t.hasPhoto);
     } else if (filter !== "All") {
       list = TEMPLATES.filter((t) => t.category === filter);
     }
-
-    // If roleRecs is set, show only those
     if (roleRecs) {
       list = list.filter((t) => roleRecs.includes(t.id));
     }
-
     return list;
   }, [filter, roleRecs]);
 
-  // Build a preview CV with optional quick color override
   const getPreviewCV = (templateId: string) => {
     if (!cv) return null;
     const colorOverride = quickColor[templateId];
@@ -141,54 +130,115 @@ export function TemplateGallery() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-16">
-        {/* Hero heading */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-5xl font-bold text-[#D1E8E2]">
-            Choose Your <span className="text-gradient-mint">CV Style</span>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 pb-16">
+        {/* HERO AREA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10"
+        >
+          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-[#D1E8E2]">
+            Find your perfect <span className="text-gradient-mint">layout.</span>
           </h1>
-          <p className="mt-3 text-[#9DB5B0]">
-            Don&apos;t worry — you can change the template later. {TEMPLATES.length} templates available.
+          <p className="mt-4 text-base sm:text-lg text-[#9DB5B0] max-w-xl mx-auto">
+            Start with a design that fits your story. {TEMPLATES.length} unique templates to choose from.
           </p>
-        </div>
 
-        {/* Featured Templates */}
-        {!roleRecs && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-5">
-              <Sparkles className="w-5 h-5 text-[#FFCB9A]" />
-              <h2 className="text-xl font-bold text-[#D1E8E2]">Featured Templates</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {featured.map((tpl, i) => (
-                <motion.div
-                  key={tpl!.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="group relative rounded-xl overflow-hidden glass-card hover:border-[#FFCB9A]/50 transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-[#FFCB9A] text-[10px] font-bold text-[#2C3531]">
-                    {tpl!.featured && FEATURED_LABELS[tpl!.featured]}
-                  </div>
-                  <div className="bg-[#1a1a1a] cursor-pointer overflow-hidden" onClick={() => setPreview(tpl!.id)} style={{ aspectRatio: "1 / 1.3" }}>
-                    <TemplatePreviewCanvas templateId={tpl!.id} cv={getPreviewCV(tpl!.id)} compact />
-                  </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-semibold text-[#D1E8E2]">{tpl!.name}</h3>
-                    <p className="text-[10px] text-[#9DB5B0] line-clamp-1">{tpl!.description}</p>
-                    <Button
-                      size="sm"
-                      onClick={() => handleUse(tpl!.id)}
-                      className="w-full mt-2 h-7 text-xs bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2]"
-                    >
-                      Use Template
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          {/* Subtle pill navigation */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            {SUBTLE_CATEGORIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => { setFilter(c); setRoleRecs(null); }}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                  filter === c && !roleRecs
+                    ? "bg-[#116466]/30 text-[#D1E8E2] border border-[#116466]/50"
+                    : "text-[#9DB5B0] hover:text-[#D1E8E2] border border-transparent hover:bg-[#3D4944]/40"
+                )}
+              >
+                {c}
+              </button>
+            ))}
           </div>
+        </motion.div>
+
+        {/* FEATURED TEMPLATE — single large highlighted */}
+        {!roleRecs && filter === "All" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-16 rounded-3xl glass-card overflow-hidden"
+          >
+            <div className="grid lg:grid-cols-2 gap-0">
+              {/* Large CV preview — left side */}
+              <div className="relative bg-[#1a1a1a] p-8 flex items-center justify-center min-h-[400px]">
+                <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFCB9A] text-[#2C3531] text-xs font-bold">
+                  <Star className="w-3 h-3 fill-current" />
+                  Editor&apos;s Choice
+                </div>
+                <div
+                  className="relative w-full max-w-sm rounded-xl overflow-hidden shadow-2xl cursor-pointer transition-transform hover:scale-[1.02]"
+                  onClick={() => setPreview(featuredTemplate.id)}
+                  style={{ aspectRatio: "1 / 1.414" }}
+                >
+                  <TemplatePreviewCanvas templateId={featuredTemplate.id} cv={getPreviewCV(featuredTemplate.id)} />
+                </div>
+              </div>
+
+              {/* Right side — info and actions */}
+              <div className="p-8 lg:p-12 flex flex-col justify-center">
+                <div className="text-xs text-[#FFCB9A] font-semibold uppercase tracking-widest mb-2">Featured Template</div>
+                <h2 className="text-4xl sm:text-5xl font-bold text-[#D1E8E2] tracking-tight">{featuredTemplate.name}</h2>
+                <p className="mt-3 text-base text-[#9DB5B0] leading-relaxed">
+                  {featuredTemplate.description}
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-xs text-[#9DB5B0]">
+                  <span className="px-2 py-0.5 rounded bg-[#3D4944]">{featuredTemplate.category}</span>
+                  {featuredTemplate.atsFriendly && (
+                    <span className="px-2 py-0.5 rounded bg-[#FFCB9A]/15 text-[#FFCB9A]">ATS Friendly</span>
+                  )}
+                </div>
+
+                {/* Color swatches */}
+                <div className="mt-6 flex items-center gap-2">
+                  <span className="text-xs text-[#9DB5B0] mr-1">Color:</span>
+                  {Object.entries(COLOR_SCHEMES).slice(0, 6).map(([key, sc]) => (
+                    <button
+                      key={key}
+                      onClick={() => setQuickColor({ ...quickColor, [featuredTemplate.id]: key })}
+                      className={cn(
+                        "w-5 h-5 rounded-full border-2 hover:scale-110 transition-all",
+                        (quickColor[featuredTemplate.id] || cv?.design.colorScheme || "nirvash") === key
+                          ? "border-[#FFCB9A] scale-110"
+                          : "border-transparent"
+                      )}
+                      style={{ background: sc.accent }}
+                      title={sc.name}
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-8 flex items-center gap-3">
+                  <Button
+                    onClick={() => handleUse(featuredTemplate.id)}
+                    className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2] h-11 px-6"
+                  >
+                    Use Template <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setPreview(featuredTemplate.id)}
+                    className="text-[#9DB5B0] hover:text-[#D1E8E2] h-11"
+                  >
+                    <Eye className="w-4 h-4 mr-1.5" /> Preview
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {/* Find the Perfect Template */}
@@ -196,7 +246,7 @@ export function TemplateGallery() {
           <div className="mb-10 p-6 rounded-2xl glass-card">
             <div className="flex items-center gap-2 mb-4">
               <Wand2 className="w-5 h-5 text-[#FFCB9A]" />
-              <h2 className="text-xl font-bold text-[#D1E8E2]">Find the Perfect Template</h2>
+              <h2 className="text-lg font-bold text-[#D1E8E2]">Find the Perfect Template</h2>
             </div>
             <p className="text-sm text-[#9DB5B0] mb-4">What are you creating this CV for?</p>
             <div className="flex flex-wrap gap-2">
@@ -232,26 +282,13 @@ export function TemplateGallery() {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-          {TEMPLATE_CATEGORIES.map((c) => (
-            <button
-              key={c}
-              onClick={() => { setFilter(c); setRoleRecs(null); }}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-sm transition-all",
-                filter === c && !roleRecs
-                  ? "bg-[#116466] text-[#D1E8E2] border border-[#116466]"
-                  : "bg-[#3D4944]/50 text-[#9DB5B0] border border-[#D1E8E2]/10 hover:border-[#D1E8E2]/30"
-              )}
-            >
-              {c}
-            </button>
-          ))}
+        {/* EXPLORE TEMPLATES — large previews, 3 columns max */}
+        <div className="mb-6 flex items-baseline justify-between">
+          <h2 className="text-2xl font-bold text-[#D1E8E2]">Explore Templates</h2>
+          <span className="text-xs text-[#9DB5B0]">{filtered.length} templates</span>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((tpl, i) => {
             const isSelected = cv?.template === tpl.id;
             const isCompareSelected = selectedForCompare.includes(tpl.id);
@@ -261,83 +298,84 @@ export function TemplateGallery() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.5) }}
-                className={cn(
-                  "group relative rounded-xl overflow-hidden glass-card hover:border-[#116466] transition-all duration-300",
-                  isSelected && "border-[#FFCB9A] ring-2 ring-[#FFCB9A]/30",
-                  isCompareSelected && "border-[#FFCB9A] ring-1 ring-[#FFCB9A]/40"
-                )}
+                className="group relative rounded-xl overflow-hidden bg-[#34403B]/40 border border-[#D1E8E2]/8 hover:border-[#116466]/50 transition-all duration-300"
               >
-                {/* Preview */}
-                <div className="relative bg-[#1a1a1a] overflow-hidden cursor-pointer" onClick={() => setPreview(tpl.id)} style={{ aspectRatio: "1 / 1.3" }}>
-                  <TemplatePreviewCanvas templateId={tpl.id} cv={getPreviewCV(tpl.id)} compact />
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2C3531]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                    <Button size="sm" className="bg-[#2C3531]/90 hover:bg-[#3D4944] text-[#D1E8E2]">
-                      <Eye className="w-3.5 h-3.5 mr-1" /> Preview
-                    </Button>
+                {/* Larger preview */}
+                <div className="relative bg-[#1a1a1a] overflow-hidden cursor-pointer" style={{ aspectRatio: "1 / 1.3" }}>
+                  <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+                    <TemplatePreviewCanvas templateId={tpl.id} cv={getPreviewCV(tpl.id)} compact />
                   </div>
 
-                  {/* Badges top-left */}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2C3531] via-[#2C3531]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  {/* Top badges */}
+                  <div className="absolute top-3 left-3 flex flex-col gap-1">
                     {tpl.atsFriendly && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#FFCB9A]/90 text-[#2C3531] text-[9px] font-semibold">ATS</span>
+                      <span className="px-1.5 py-0.5 rounded-md bg-[#FFCB9A]/90 text-[#2C3531] text-[10px] font-semibold">ATS</span>
                     )}
-                    {tpl.onePage && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#116466]/90 text-[#D1E8E2] text-[9px] font-semibold">1 PAGE</span>
-                    )}
-                    {tpl.hasPhoto && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#D9B08C]/90 text-[#2C3531] text-[9px] font-semibold">PHOTO</span>
+                    {tpl.featured && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-[#FFCB9A]/20 backdrop-blur-sm text-[#FFCB9A] text-[10px] font-semibold border border-[#FFCB9A]/30">
+                        {FEATURED_LABELS[tpl.featured]}
+                      </span>
                     )}
                   </div>
 
-                  {/* Compare checkbox top-right */}
+                  {/* Compare checkbox */}
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleCompare(tpl.id); }}
                     className={cn(
-                      "absolute top-2 right-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all",
+                      "absolute top-3 right-3 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all backdrop-blur-sm",
                       isCompareSelected
                         ? "bg-[#FFCB9A] border-[#FFCB9A]"
-                        : "bg-[#2C3531]/80 border-[#D1E8E2]/30 hover:border-[#FFCB9A]"
+                        : "bg-[#2C3531]/70 border-[#D1E8E2]/30 hover:border-[#FFCB9A] opacity-0 group-hover:opacity-100"
                     )}
                     title="Add to compare"
                   >
                     {isCompareSelected && <Check className="w-4 h-4 text-[#2C3531]" />}
                   </button>
 
+                  {/* Hover actions */}
+                  <div className="absolute inset-x-0 bottom-0 p-4 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+                    <Button
+                      size="sm"
+                      onClick={(e) => { e.stopPropagation(); handleUse(tpl.id); }}
+                      className="bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2] h-9"
+                    >
+                      Use Template <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); setPreview(tpl.id); }}
+                      className="bg-[#2C3531]/80 hover:bg-[#3D4944] text-[#D1E8E2] h-9 w-9 p-0"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </div>
+
                   {isSelected && (
-                    <div className="absolute top-2 right-9 w-6 h-6 rounded-full bg-[#FFCB9A] flex items-center justify-center">
+                    <div className="absolute top-3 right-10 w-6 h-6 rounded-full bg-[#FFCB9A] flex items-center justify-center">
                       <Check className="w-4 h-4 text-[#2C3531]" />
                     </div>
                   )}
                 </div>
 
-                {/* Info */}
+                {/* Minimal info below */}
                 <div className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold text-[#D1E8E2] truncate">{tpl.name}</h3>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="px-1.5 py-0.5 rounded bg-[#3D4944] text-[10px] text-[#9DB5B0]">{tpl.category}</span>
-                        {tpl.featured && (
-                          <span className="px-1.5 py-0.5 rounded bg-[#FFCB9A]/15 text-[10px] text-[#FFCB9A]">
-                            {FEATURED_LABELS[tpl.featured]}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                  <h3 className="text-base font-semibold text-[#D1E8E2]">{tpl.name}</h3>
+                  <div className="text-xs text-[#9DB5B0] mt-1">
+                    {tpl.category}{tpl.atsFriendly && " · ATS Friendly"}
                   </div>
-                  <p className="text-xs text-[#9DB5B0] mt-1.5 line-clamp-2">{tpl.description}</p>
 
                   {/* Quick color swatches */}
                   <div className="mt-3 flex items-center gap-1.5">
-                    <span className="text-[10px] text-[#9DB5B0]">Color:</span>
-                    {Object.entries(COLOR_SCHEMES).slice(0, 6).map(([key, sc]) => (
+                    {Object.entries(COLOR_SCHEMES).slice(0, 5).map(([key, sc]) => (
                       <button
                         key={key}
                         onClick={() => setQuickColor({ ...quickColor, [tpl.id]: key })}
                         className={cn(
-                          "w-4 h-4 rounded-full border transition-all hover:scale-110",
+                          "w-4 h-4 rounded-full border hover:scale-110 transition-all",
                           (quickColor[tpl.id] || cv?.design.colorScheme || "nirvash") === key
                             ? "border-[#FFCB9A] scale-110"
                             : "border-transparent"
@@ -346,27 +384,6 @@ export function TemplateGallery() {
                         title={sc.name}
                       />
                     ))}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="mt-3 flex items-center gap-2">
-                    <Button
-                      onClick={() => handleUse(tpl.id)}
-                      className={cn(
-                        "flex-1 h-9",
-                        isSelected ? "bg-[#FFCB9A] hover:bg-[#FFCB9A]/90 text-[#2C3531]" : "bg-[#116466] hover:bg-[#0d4d4f] text-[#D1E8E2]"
-                      )}
-                    >
-                      {isSelected ? "Selected ✓" : "Use Template"}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setPreview(tpl.id)}
-                      className="text-[#9DB5B0] hover:text-[#D1E8E2] h-9 px-3"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
                   </div>
                 </div>
               </motion.div>
@@ -398,7 +415,6 @@ export function TemplateGallery() {
                 <p className="text-xs text-[#9DB5B0]">{TEMPLATES.find(t => t.id === preview)?.description}</p>
               </div>
               <div className="flex items-center gap-2">
-                {/* Quick color swatches in preview */}
                 <div className="hidden md:flex items-center gap-1">
                   {Object.entries(COLOR_SCHEMES).slice(0, 8).map(([key, sc]) => (
                     <button
@@ -417,16 +433,12 @@ export function TemplateGallery() {
               </div>
             </div>
             <div className="bg-white rounded-lg overflow-hidden">
-              <TemplatePreviewCanvas
-                templateId={preview}
-                cv={getPreviewCV(preview)}
-              />
+              <TemplatePreviewCanvas templateId={preview} cv={getPreviewCV(preview)} />
             </div>
           </div>
         </div>
       )}
 
-      {/* Compare modal */}
       <CompareModal
         open={compareOpen}
         onOpenChange={setCompareOpen}

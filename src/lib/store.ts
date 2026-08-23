@@ -37,7 +37,7 @@ interface AppState {
   totalWizardSteps: number;
 
   // Editor UI state
-  editorTab: "edit" | "preview" | "customize";
+  editorTab: "edit" | "preview" | "customize" | "ai";
   editorActiveSection: string;
   previewZoom: number;
 
@@ -114,7 +114,7 @@ interface AppState {
   prevWizardStep: () => void;
 
   // Editor UI
-  setEditorTab: (t: "edit" | "preview" | "customize") => void;
+  setEditorTab: (t: "edit" | "preview" | "customize" | "ai") => void;
   setEditorActiveSection: (s: string) => void;
   setPreviewZoom: (z: number) => void;
 

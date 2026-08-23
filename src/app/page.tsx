@@ -14,13 +14,19 @@ import { Dashboard } from "@/components/dashboard/Dashboard";
 import { Settings } from "@/components/settings/Settings";
 import { SuccessScreen } from "@/components/success/SuccessScreen";
 import { PreparingTransition } from "@/components/templates/PreparingTransition";
+import { ThemesPage } from "@/components/themes/ThemesPage";
+import { CommandPalette } from "@/components/cmdk/CommandPalette";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const view = useAppStore((s) => s.view);
 
   // Hide navbar on editor, wizard, and preparing screens (those have their own chrome)
   const showNavbar = !["question-wizard", "form-builder", "editor", "preparing"].includes(view);
-  const showFooter = ["landing", "dashboard", "settings", "success"].includes(view);
+  const showFooter = ["landing", "dashboard", "settings", "success", "themes"].includes(view);
+  // Hide footer on template gallery and method select (more app-like)
+  const showFooterFinal = showFooter && !["template-gallery", "method-select"].includes(view);
 
   // Warn before unload if CV is being edited
   useEffect(() => {
@@ -37,19 +43,38 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-[#2C3531]">
       {showNavbar && <Navbar />}
-      <main className="flex-1">
-        {view === "landing" && <LandingPage />}
-        {view === "method-select" && <MethodSelect />}
-        {view === "question-wizard" && <QuestionWizard />}
-        {view === "form-builder" && <FormBuilder />}
-        {view === "template-gallery" && <TemplateGallery />}
-        {view === "preparing" && <PreparingTransition />}
-        {view === "editor" && <CVEditor />}
-        {view === "dashboard" && <Dashboard />}
-        {view === "settings" && <Settings />}
-        {view === "success" && <SuccessScreen />}
+
+      <main className="flex-1 pb-16 md:pb-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={view}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {view === "landing" && <LandingPage />}
+            {view === "method-select" && <MethodSelect />}
+            {view === "question-wizard" && <QuestionWizard />}
+            {view === "form-builder" && <FormBuilder />}
+            {view === "template-gallery" && <TemplateGallery />}
+            {view === "themes" && <ThemesPage />}
+            {view === "preparing" && <PreparingTransition />}
+            {view === "editor" && <CVEditor />}
+            {view === "dashboard" && <Dashboard />}
+            {view === "settings" && <Settings />}
+            {view === "success" && <SuccessScreen />}
+          </motion.div>
+        </AnimatePresence>
       </main>
-      {showFooter && <Footer />}
+
+      {showFooterFinal && <Footer />}
+
+      {/* Global: Command Palette (Ctrl+K) */}
+      <CommandPalette />
+
+      {/* Mobile bottom navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

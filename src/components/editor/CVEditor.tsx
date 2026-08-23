@@ -24,6 +24,7 @@ import { AISummaryButton } from "@/components/ai/AISummaryButton";
 import { AIImproveButton } from "@/components/ai/AIImproveButton";
 import { AIProjectImprover } from "@/components/ai/AIProjectImprover";
 import { AISkillsSuggestions } from "@/components/ai/AISkillsSuggestions";
+import { AIWorkspace } from "./AIWorkspace";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -140,10 +141,11 @@ export function CVEditor() {
           {/* Mobile tabs */}
           {isMobile && (
             <Tabs value={editorTab} onValueChange={(v) => setEditorTab(v as any)} className="pb-2">
-              <TabsList className="grid grid-cols-3 w-full bg-[#3D4944]">
-                <TabsTrigger value="edit" className="data-[state=active]:bg-[#116466] data-[state=active]:text-[#D1E8E2] text-[#9DB5B0] text-xs">Edit</TabsTrigger>
+              <TabsList className="grid grid-cols-4 w-full bg-[#3D4944]">
+                <TabsTrigger value="edit" className="data-[state=active]:bg-[#116466] data-[state=active]:text-[#D1E8E2] text-[#9DB5B0] text-xs">Content</TabsTrigger>
                 <TabsTrigger value="preview" className="data-[state=active]:bg-[#116466] data-[state=active]:text-[#D1E8E2] text-[#9DB5B0] text-xs">Preview</TabsTrigger>
-                <TabsTrigger value="customize" className="data-[state=active]:bg-[#116466] data-[state=active]:text-[#D1E8E2] text-[#9DB5B0] text-xs">Customize</TabsTrigger>
+                <TabsTrigger value="customize" className="data-[state=active]:bg-[#116466] data-[state=active]:text-[#D1E8E2] text-[#9DB5B0] text-xs">Design</TabsTrigger>
+                <TabsTrigger value="ai" className="data-[state=active]:bg-[#116466] data-[state=active]:text-[#D1E8E2] text-[#9DB5B0] text-xs">AI</TabsTrigger>
               </TabsList>
             </Tabs>
           )}
@@ -151,34 +153,110 @@ export function CVEditor() {
       </div>
 
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid md:grid-cols-[40%_60%] gap-4">
-          {/* LEFT: Editor (hidden on mobile preview/customize) */}
-          <div className={cn("space-y-3", isMobile && editorTab !== "edit" && "hidden")}>
-            <EditorSections cv={cv} activeSection={editorActiveSection} setActiveSection={setEditorActiveSection} />
-          </div>
-
-          {/* RIGHT: Live preview (hidden on mobile edit) */}
-          <div className={cn(isMobile && editorTab !== "preview" && "hidden")}>
-            <PreviewPanel cv={cv} zoom={previewZoom} setZoom={setPreviewZoom} />
-          </div>
-
-          {/* Customize panel (mobile) */}
-          {isMobile && editorTab === "customize" && (
-            <CustomizePanel cv={cv} />
-          )}
-        </div>
-
-        {/* Desktop customize panel as full-width below */}
+        {/* Desktop Content/Design/AI tab nav */}
         {!isMobile && (
-          <div className="mt-6">
-            <CustomizePanel cv={cv} />
-          </div>
+          <DesktopEditorTabs cv={cv} />
+        )}
+
+        {isMobile && (
+          <>
+            <div className="grid grid-cols-1 gap-4">
+              {/* LEFT: Editor (hidden on mobile preview/customize/ai) */}
+              <div className={cn("space-y-3", isMobile && editorTab !== "edit" && "hidden")}>
+                <EditorSections cv={cv} activeSection={editorActiveSection} setActiveSection={setEditorActiveSection} />
+              </div>
+
+              {/* RIGHT: Live preview (hidden on mobile edit/ai) */}
+              <div className={cn(isMobile && editorTab !== "preview" && "hidden")}>
+                <PreviewPanel cv={cv} zoom={previewZoom} setZoom={setPreviewZoom} />
+              </div>
+
+              {/* Customize panel (mobile) */}
+              {isMobile && editorTab === "customize" && (
+                <CustomizePanel cv={cv} />
+              )}
+
+              {/* AI workspace (mobile) */}
+              {isMobile && editorTab === "ai" && (
+                <AIWorkspace />
+              )}
+            </div>
+          </>
         )}
       </div>
 
       {/* Modals */}
       <DownloadModal open={downloadOpen} onOpenChange={setDownloadOpen} cv={cv} />
       <QualityCheck open={qualityOpen} onOpenChange={setQualityOpen} cv={cv} />
+    </div>
+  );
+}
+
+// ============ Desktop Editor Tabs (Content | Design | AI) ============
+
+function DesktopEditorTabs({ cv }: { cv: any }) {
+  const editorTab = useAppStore((s) => s.editorTab);
+  const setEditorTab = useAppStore((s) => s.setEditorTab);
+  const editorActiveSection = useAppStore((s) => s.editorActiveSection);
+  const setEditorActiveSection = useAppStore((s) => s.setEditorActiveSection);
+  const previewZoom = useAppStore((s) => s.previewZoom);
+  const setPreviewZoom = useAppStore((s) => s.setPreviewZoom);
+
+  return (
+    <div className="space-y-4">
+      {/* Tab nav */}
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-[#3D4944]/60 border border-[#D1E8E2]/10 w-fit">
+        {[
+          { id: "edit", label: "Content" },
+          { id: "preview", label: "Preview" },
+          { id: "customize", label: "Design" },
+          { id: "ai", label: "AI" },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setEditorTab(t.id as any)}
+            className={cn(
+              "px-4 py-1.5 rounded-lg text-sm font-medium transition-all",
+              editorTab === t.id ? "bg-[#116466] text-[#D1E8E2]" : "text-[#9DB5B0] hover:text-[#D1E8E2]"
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {editorTab === "edit" && (
+        <div className="grid lg:grid-cols-[40%_60%] gap-4">
+          <div className="space-y-3">
+            <EditorSections cv={cv} activeSection={editorActiveSection} setActiveSection={setEditorActiveSection} />
+          </div>
+          <div>
+            <PreviewPanel cv={cv} zoom={previewZoom} setZoom={setPreviewZoom} />
+          </div>
+        </div>
+      )}
+
+      {/* Preview only */}
+      {editorTab === "preview" && (
+        <div className="max-w-3xl mx-auto">
+          <PreviewPanel cv={cv} zoom={previewZoom} setZoom={setPreviewZoom} />
+        </div>
+      )}
+
+      {/* Design */}
+      {editorTab === "customize" && (
+        <div className="space-y-4">
+          <CustomizePanel cv={cv} />
+        </div>
+      )}
+
+      {/* AI */}
+      {editorTab === "ai" && (
+        <div className="max-w-3xl">
+          <AIWorkspace />
+        </div>
+      )}
     </div>
   );
 }

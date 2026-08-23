@@ -89,6 +89,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             {navItem("landing", "Home")}
             {navItem("template-gallery", "Templates")}
+            {navItem("themes", "Themes")}
             {navItem("how-it-works", "How It Works", true)}
             {navItem("dashboard", "My CVs")}
           </div>
@@ -144,6 +145,12 @@ export function Navbar() {
                 className="block w-full text-left px-4 py-3 rounded-lg text-[#D1E8E2] hover:bg-[#3D4944]"
               >
                 Templates
+              </button>
+              <button
+                onClick={() => { setView("themes"); setMobileOpen(false); }}
+                className="block w-full text-left px-4 py-3 rounded-lg text-[#D1E8E2] hover:bg-[#3D4944]"
+              >
+                Themes
               </button>
               <button
                 onClick={() => { setView("landing"); setMobileOpen(false); setTimeout(() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" }), 100); }}

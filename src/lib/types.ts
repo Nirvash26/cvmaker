@@ -10,7 +10,8 @@ export type View =
   | "editor"
   | "dashboard"
   | "settings"
-  | "success";
+  | "success"
+  | "themes";
 
 export interface PersonalInfo {
   fullName: string;
