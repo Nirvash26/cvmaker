@@ -554,24 +554,34 @@ function CustomizePanel({ cv }: { cv: any }) {
 
         {/* Colors */}
         <div>
-          <h4 className="text-xs text-[#9DB5B0] uppercase tracking-wider mb-2">Color Scheme</h4>
-          <div className="grid grid-cols-3 gap-1.5">
+          <h4 className="text-xs text-[#9DB5B0] uppercase tracking-wider mb-2">Color Scheme ({Object.keys(COLOR_SCHEMES).length} themes)</h4>
+          <div className="grid grid-cols-4 gap-1.5 max-h-44 overflow-y-auto no-scrollbar pr-1">
             {Object.entries(COLOR_SCHEMES).map(([k, v]) => (
               <button
                 key={k}
                 onClick={() => updateDesign(cv.id, { colorScheme: k })}
+                title={v.subtitle ? `${v.name} — ${v.subtitle}` : v.name}
                 className={cn(
-                  "p-2 rounded-md border-2 transition-all flex flex-col gap-1",
-                  design.colorScheme === k ? "border-[#FFCB9A]" : "border-transparent"
+                  "p-1.5 rounded-md border-2 transition-all flex flex-col gap-0.5 relative",
+                  design.colorScheme === k ? "border-[#FFCB9A]" : "border-transparent hover:border-[#D1E8E2]/20"
                 )}
                 style={{ background: v.bg }}
               >
-                <div className="w-full h-3 rounded-sm" style={{ background: v.accent }} />
-                <div className="w-full h-2 rounded-sm" style={{ background: v.text }} />
-                <span className="text-[9px] text-center" style={{ color: v.text }}>{v.name}</span>
+                {v.premium && (
+                  <span className="absolute -top-1 -right-1 px-1 py-0 rounded bg-[#FFCB9A] text-[7px] font-bold text-[#2C3531] leading-tight">PRO</span>
+                )}
+                <div className="w-full h-2.5 rounded-sm" style={{ background: v.accent }} />
+                <div className="w-full h-1.5 rounded-sm" style={{ background: v.text }} />
+                <span className="text-[8px] text-center leading-tight truncate" style={{ color: v.text }}>{v.name}</span>
               </button>
             ))}
           </div>
+          {(() => {
+            const active = COLOR_SCHEMES[design.colorScheme];
+            return active?.subtitle ? (
+              <p className="text-[10px] text-[#FFCB9A] mt-1.5 italic">{active.subtitle}</p>
+            ) : null;
+          })()}
         </div>
 
         {/* Optional elements */}

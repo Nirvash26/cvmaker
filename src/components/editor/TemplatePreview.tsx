@@ -1,8 +1,9 @@
 "use client";
 
 import { CVData } from "@/lib/types";
-import { COLOR_SCHEMES, FONT_FAMILIES } from "@/lib/types";
+import { COLOR_SCHEMES, FONT_FAMILIES, ColorScheme } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { NEW_TEMPLATE_MAP, NewTemplateProps } from "./NewTemplates";
 
 interface TemplatePreviewProps {
   templateId: string;
@@ -17,15 +18,22 @@ export function TemplatePreview({ templateId, cv, compact, className }: Template
   const fontStack = FONT_FAMILIES[safeCV.design.fontFamily]?.stack || "Inter, sans-serif";
   const fontSize = compact ? Math.max(8, safeCV.design.fontSize - 4) : safeCV.design.fontSize;
 
-  const props = { cv: safeCV, scheme, fontStack, fontSize, compact };
+  // Try new templates first
+  const NewTemplateComp = NEW_TEMPLATE_MAP[templateId];
+  if (NewTemplateComp) {
+    const props: NewTemplateProps = { cv: safeCV, scheme, fontStack, fontSize, compact };
+    return <NewTemplateComp {...props} />;
+  }
 
+  // Fallback to original 12 templates
+  const props = { cv: safeCV, scheme, fontStack, fontSize, compact };
   const TemplateComp = TEMPLATE_MAP[templateId] || AuroraTemplate;
   return <TemplateComp {...props} />;
 }
 
 interface TemplateProps {
   cv: CVData;
-  scheme: typeof COLOR_SCHEMES.nirvash;
+  scheme: ColorScheme;
   fontStack: string;
   fontSize: number;
   compact?: boolean;

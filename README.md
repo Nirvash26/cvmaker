@@ -10,6 +10,16 @@ A premium, dark-themed CV builder with AI assistance, real-time preview, 12 beau
 
 ## ✨ Features
 
+### 50+ CV Templates & 21 Premium Themes
+
+- **50 unique CV templates** across 8 categories (Minimal, Modern, Colorful, Creative, Executive, Tech, Student, Unique)
+- **21 color themes** including the premium **Ruby Noir** (luxury dark red/black palette)
+- Hundreds of template + theme combinations
+- Quick color switching on every template preview
+- Compare up to 3 templates side-by-side
+- Role-based recommendations ("Find the Perfect Template")
+- Featured templates section (Editor's Pick, Most Popular, Best for Students, Best for Tech, New)
+
 ### Phase 1 — Landing & Branding
 - Premium dark UI with the Nirvash palette (Deep Dark Green, Dark Teal, Warm Beige, Soft Peach, Light Mint)
 - Animated hero with floating CV previews, glow orbs, and SVG line art
@@ -21,10 +31,10 @@ A premium, dark-themed CV builder with AI assistance, real-time preview, 12 beau
 ### Phase 2 — CV Creation System
 - **Question-based wizard** — 8 steps with progress bar, adaptive experience options, profile-type suggestion chips, AI help at every step
 - **Form-based builder** — sidebar with 9 sections, CV completion % indicator, collapsible cards, duplicate/rename/delete actions
-- **12 unique CV templates** — Nirvash Minimal, Vertex, Aurora, Slate, Nova, Executive, Horizon, Focus, Studio, Classic, Academic, Modern Edge
+- **12 original + 50 new CV templates** — Nirvash Minimal, Vertex, Aurora, Slate, Nova, Executive, Horizon, Focus, Studio, Classic, Academic, Modern Edge + Apex, Blank Space, Paper, Outline, Calm, One, Orbit, Prism, Flux, Vector, Quantum, Signal, Vivid, Coral, Electric, Spectrum, Pop, Ember, Canvas Pro, Gallery, Frame, Studio Pro, Muse Modern, Story, Chairman, Boardroom, Legacy, Summit Pro, Capital, Director, DevGrid, Stack, Byte, System, Build, Cloud, First Step, Momentum, Scholar, Intern, Future, Spark, Timeline, Split, Sidebar, Magazine, Card, Gridline, Profile, Impact
 - **"Preparing your CV..." cinematic transition** between template selection and the editor
 - **Live split-screen editor** — 40/60 layout, A4 preview, zoom controls, drag-and-drop section reorder
-- **Customize panel** — typography, layout density (Compact/Balanced/Spacious), 6 color schemes, photo/icons/dividers toggles
+- **Customize panel** — typography, layout density (Compact/Balanced/Spacious), **21 color themes** (incl. premium Ruby Noir), photo/icons/dividers toggles
 - **Autosave** — every change is persisted to localStorage with "Saving... / All changes saved" status
 
 ### Phase 3 — AI, Analysis & Polish
