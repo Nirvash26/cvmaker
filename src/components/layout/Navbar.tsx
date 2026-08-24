@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -58,7 +59,7 @@ export function Navbar() {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-[#2C3531]/80 backdrop-blur-xl border-b border-[#D1E8E2]/5"
+          ? "bg-background/80 backdrop-blur-xl border-b border-border"
           : "bg-transparent"
       )}
     >
@@ -96,6 +97,7 @@ export function Navbar() {
 
           {/* Right actions */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <button
               onClick={() => setView("dashboard")}
               className="px-4 py-2 text-sm font-medium text-[#D1E8E2]/90 hover:text-[#D1E8E2] transition-colors"
@@ -131,7 +133,7 @@ export function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-[#2C3531]/95 backdrop-blur-xl border-b border-[#D1E8E2]/5 overflow-hidden"
+            className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
               <button
@@ -164,6 +166,10 @@ export function Navbar() {
               >
                 My CVs
               </button>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm text-[#9DB5B0]">Appearance</span>
+                <ThemeToggle />
+              </div>
               <button
                 onClick={() => { setView("method-select"); setMobileOpen(false); }}
                 className="block w-full mt-2 px-4 py-3 rounded-lg bg-[#116466] text-[#D1E8E2] font-medium text-center"

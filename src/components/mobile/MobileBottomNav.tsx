@@ -43,7 +43,7 @@ export function MobileBottomNav() {
           animate={{ y: 0 }}
           exit={{ y: 60 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#2C3531]/95 backdrop-blur-xl border-t border-[#D1E8E2]/10"
+          className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <div className="flex items-stretch justify-around h-14">

@@ -53,7 +53,58 @@
 :root {
   --radius: 0.875rem;
 
-  /* Dark premium Nirvash theme (default) */
+  /* Light mode (default) — inspired by clean, airy design */
+  --background: #F5F7F6;
+  --foreground: #1A2522;
+  --card: #FFFFFF;
+  --card-foreground: #1A2522;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A2522;
+  --primary: #116466;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E8EDEB;
+  --secondary-foreground: #1A2522;
+  --muted: #E8EDEB;
+  --muted-foreground: #5C6B66;
+  --accent: #FFCB9A;
+  --accent-foreground: #1A2522;
+  --destructive: #DC2626;
+  --border: rgba(26, 37, 34, 0.10);
+  --input: rgba(26, 37, 34, 0.08);
+  --ring: #116466;
+  --chart-1: #116466;
+  --chart-2: #D9B08C;
+  --chart-3: #FFCB9A;
+  --chart-4: #2C3531;
+  --chart-5: #9DB5B0;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A2522;
+  --sidebar-primary: #116466;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E8EDEB;
+  --sidebar-accent-foreground: #1A2522;
+  --sidebar-border: rgba(26, 37, 34, 0.08);
+  --sidebar-ring: #116466;
+
+  /* Nirvash semantic tokens — adapt to theme */
+  --nv-bg: #F5F7F6;
+  --nv-surface: #FFFFFF;
+  --nv-surface-hover: #F0F3F2;
+  --nv-text: #1A2522;
+  --nv-text-secondary: #5C6B66;
+  --nv-text-muted: #8A9994;
+  --nv-accent: #116466;
+  --nv-accent-hover: #0d4d4f;
+  --nv-highlight: #FFCB9A;
+  --nv-border: rgba(26, 37, 34, 0.08);
+  --nv-glass: rgba(255, 255, 255, 0.7);
+  --nv-glass-border: rgba(26, 37, 34, 0.06);
+  --nv-shadow: rgba(17, 100, 102, 0.08);
+  --nv-grid: rgba(17, 100, 102, 0.04);
+}
+
+.dark {
+  /* Dark premium Nirvash theme */
   --background: #2C3531;
   --foreground: #D1E8E2;
   --card: #34403B;
@@ -85,6 +136,22 @@
   --sidebar-accent-foreground: #D1E8E2;
   --sidebar-border: rgba(209, 232, 226, 0.10);
   --sidebar-ring: #116466;
+
+  /* Nirvash semantic tokens — dark */
+  --nv-bg: #2C3531;
+  --nv-surface: #34403B;
+  --nv-surface-hover: #3D4944;
+  --nv-text: #D1E8E2;
+  --nv-text-secondary: #9DB5B0;
+  --nv-text-muted: #7A8C87;
+  --nv-accent: #116466;
+  --nv-accent-hover: #0d4d4f;
+  --nv-highlight: #FFCB9A;
+  --nv-border: rgba(209, 232, 226, 0.10);
+  --nv-glass: rgba(52, 64, 59, 0.6);
+  --nv-glass-border: rgba(209, 232, 226, 0.08);
+  --nv-shadow: rgba(0, 0, 0, 0.3);
+  --nv-grid: rgba(17, 100, 102, 0.08);
 }
 
 @layer base {
@@ -100,7 +167,7 @@
   }
   ::selection {
     background: rgba(255, 203, 154, 0.25);
-    color: #D1E8E2;
+    color: var(--nv-text);
   }
 
   /* Custom scrollbar */
@@ -109,12 +176,12 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #2C3531;
+    background: var(--nv-bg);
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(17, 100, 102, 0.4);
+    background: rgba(17, 100, 102, 0.3);
     border-radius: 8px;
-    border: 2px solid #2C3531;
+    border: 2px solid var(--nv-bg);
   }
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(17, 100, 102, 0.7);
@@ -124,14 +191,14 @@
 /* === Nirvash utility classes === */
 @layer utilities {
   .glass-card {
-    background: linear-gradient(135deg, rgba(52, 64, 59, 0.6) 0%, rgba(45, 53, 49, 0.4) 100%);
+    background: var(--nv-glass);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(209, 232, 226, 0.08);
+    border: 1px solid var(--nv-glass-border);
   }
   .glass-card-strong {
-    background: linear-gradient(135deg, rgba(61, 73, 68, 0.85) 0%, rgba(52, 64, 59, 0.75) 100%);
+    background: var(--nv-surface);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(209, 232, 226, 0.10);
+    border: 1px solid var(--nv-border);
   }
   .teal-glow {
     box-shadow: 0 0 24px rgba(17, 100, 102, 0.4), 0 0 1px rgba(17, 100, 102, 0.6) inset;
@@ -143,21 +210,21 @@
     box-shadow: 0 0 28px rgba(255, 203, 154, 0.35);
   }
   .text-gradient-mint {
-    background: linear-gradient(135deg, #D1E8E2 0%, #FFCB9A 100%);
+    background: linear-gradient(135deg, var(--nv-text) 0%, #FFCB9A 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .text-gradient-teal {
-    background: linear-gradient(135deg, #116466 0%, #FFCB9A 100%);
+    background: linear-gradient(135deg, var(--nv-accent) 0%, #FFCB9A 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .grid-bg {
     background-image:
-      linear-gradient(rgba(17, 100, 102, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(17, 100, 102, 0.08) 1px, transparent 1px);
+      linear-gradient(var(--nv-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--nv-grid) 1px, transparent 1px);
     background-size: 48px 48px;
   }
   .radial-fade {

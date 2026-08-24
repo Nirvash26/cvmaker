@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import { ChevronLeft, User, Settings as SettingsIcon, KeyRound, Trash2, Camera, Globe, Palette, Download, LogOut, Eye } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 export function Settings() {
   const setView = useAppStore((s) => s.setView);
   const cvs = useAppStore((s) => s.cvs);
+  const { theme, setTheme } = useTheme();
 
   const [profile, setProfile] = useState({
     name: "Alex Johnson",
@@ -152,13 +154,15 @@ export function Settings() {
                   <Palette className="w-3 h-3 inline mr-1" /> Theme
                 </Label>
                 <select
-                  value={prefs.theme}
-                  onChange={(e) => setPrefs({ ...prefs, theme: e.target.value })}
-                  className="bg-[#3D4944] border border-[#D1E8E2]/10 text-[#D1E8E2] rounded-md px-3 py-2 text-sm w-full"
+                  value={theme || "dark"}
+                  onChange={(e) => {
+                    setTheme(e.target.value);
+                    setPrefs({ ...prefs, theme: e.target.value });
+                  }}
+                  className="bg-muted border border-border text-foreground rounded-md px-3 py-2 text-sm w-full"
                 >
                   <option value="dark">Dark (Nirvash)</option>
                   <option value="light">Light</option>
-                  <option value="system">System</option>
                 </select>
               </div>
             </div>
