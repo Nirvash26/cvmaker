@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nirvash CV Maker — Your CV. Made Effortlessly.",
+  title: "Nirvash CV Maker — Your CV. Made Effortlessly. ✨ v3",
   description:
     "Create a professional CV in minutes. Answer simple questions or fill out a form, pick a beautiful template, and download a polished resume. No experience required.",
   keywords: [
