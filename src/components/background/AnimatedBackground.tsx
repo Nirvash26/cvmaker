@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 
 /**
  * Premium animated background for the Nirvash app.
- * Renders fixed-position ambient layers (aurora orbs, floating particles,
- * grid pulse) behind all content.
+ * Renders fixed-position ambient layers (video base, aurora orbs,
+ * floating particles, grid pulse) behind all content.
  *
  * Theme-aware: uses CSS variables so it adapts to light/dark mode.
  */
@@ -25,9 +25,31 @@ export function AnimatedBackground() {
       aria-hidden
       className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
     >
+      {/* Blurred video background layer (6px blur) */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ filter: "blur(6px)", transform: "scale(1.1)" }}
+      >
+        <source src="/nirvash-bg.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark/light overlay tint over the video so it blends with theme */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, var(--nv-bg) 0%, color-mix(in srgb, var(--nv-bg) 70%, transparent) 50%, var(--nv-bg) 100%)",
+          opacity: 0.85,
+        }}
+      />
+
       {/* Subtle animated grid */}
       <div
-        className="absolute inset-0 grid-bg opacity-40"
+        className="absolute inset-0 grid-bg opacity-30"
         style={{
           maskImage: "radial-gradient(ellipse at center, black 0%, transparent 70%)",
           WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, transparent 70%)",
@@ -109,3 +131,4 @@ export function AnimatedBackground() {
     </div>
   );
 }
+
