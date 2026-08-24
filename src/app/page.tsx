@@ -43,6 +43,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground relative">
+      {/* Cache-busting auto-reload: if this version marker doesn't match, force reload */}
+      <script dangerouslySetInnerHTML={{ __html: `
+        if (window.location.search.indexOf('v=3') === -1 && !window.__nv3reloading) {
+          window.__nv3reloading = true;
+          window.location.href = window.location.pathname + '?v=3' + window.location.hash;
+        }
+      `}} />
+
       {/* Premium animated background — aurora orbs + floating particles + grid */}
       <AnimatedBackground />
 
