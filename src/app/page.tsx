@@ -17,6 +17,7 @@ import { PreparingTransition } from "@/components/templates/PreparingTransition"
 import { ThemesPage } from "@/components/themes/ThemesPage";
 import { CommandPalette } from "@/components/cmdk/CommandPalette";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { AnimatedBackground } from "@/components/background/AnimatedBackground";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
@@ -41,7 +42,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground relative">
+      {/* Premium animated background — aurora orbs + floating particles + grid */}
+      <AnimatedBackground />
+
       {showNavbar && <Navbar />}
 
       <main className="flex-1 pb-16 md:pb-0">
